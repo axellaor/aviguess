@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AviGuess</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐦</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Syne+Mono&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0f0a;
+  --bg2: #111710;
+  --bg3: #182015;
+  --surface: #1c2419;
+  --border: #2a3626;
+  --border2: #3a4e32;
+  --text: #e8edd5;
+  --text2: #9aaa80;
+  --text3: #5a6b48;
+  --green: #6abf4b;
+  --green2: #4a8f30;
+  --yellow: #d4a843;
+  --yellow2: #a07820;
+  --red: #c94040;
+  --blue: #4a9bc4;
+  --accent: #7dd85a;
+  --glow: rgba(106,191,75,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Lora', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(106,191,75,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(106,191,75,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 2rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.logo span { color: var(--accent); }
+.logo-sub {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-top: 0.3rem;
+}
+.header-meta {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+.meta-pill {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--text2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.3rem 0.9rem;
+}
+.meta-pill strong { color: var(--accent); }
+
+/* ── MODE TABS ── */
+.mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+}
+.mode-tab {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.45rem 1.3rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mode-tab:hover { color: var(--text2); border-color: var(--text3); }
+.mode-tab.active { background: var(--green2); border-color: var(--green2); color: #fff; }
+.mode-tab.daily.active { background: #7a4eab; border-color: #7a4eab; }
+
+/* ── DAILY DONE ── */
+.daily-done {
+  background: rgba(122,78,171,0.12);
+  border: 1px solid #7a4eab;
+  border-radius: 8px;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  display: none;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.4s ease both;
+}
+.daily-done.show { display: block; }
+.daily-done-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #b07de8;
+  margin-bottom: 0.3rem;
+}
+.daily-done-sub { font-size: 0.88rem; color: var(--text2); }
+
+.result-banner {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.5rem 1.5rem 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  animation: fadeUp 0.5s ease both;
+  border: 1.5px solid;
+  text-align: center;
+}
+.result-banner.show { display: flex; }
+.result-banner.win {
+  background: rgba(106,191,75,0.12);
+  border-color: var(--green2);
+  color: var(--green);
+}
+.result-banner.lose {
+  background: rgba(201,64,64,0.1);
+  border-color: var(--red);
+  color: #e07070;
+}
+.banner-icon { font-size: 2.2rem; margin-bottom: 0.2rem; }
+.banner-text { line-height: 1.4; width: 100%; }
+.banner-sub {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.72rem;
+  opacity: 0.7;
+  font-weight: 400;
+  display: block;
+  margin-top: 0.2rem;
+}
+.banner-fact {
+  display: block;
+  margin-top: 0.8rem;
+  padding: 0.6rem 1rem;
+  font-family: 'Lora', serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text2);
+  background: rgba(0,0,0,0.15);
+  border-radius: 6px;
+  width: 100%;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.2rem 4rem;
+}
+
+.how-to {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.8rem;
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.how-to strong { color: var(--accent); font-family: 'Syne', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.silhouette-wrap { text-align: center; margin-bottom: 1.5rem; }
+.sil-label {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.5rem;
+}
+.sil-emoji {
+  font-size: 5rem;
+  filter: brightness(0) invert(0.1);
+  transition: filter 1.5s ease;
+  display: inline-block;
+  line-height: 1;
+}
+.sil-emoji.revealed { filter: brightness(1); }
+
+.attempts-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
+}
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  transition: all 0.3s;
+}
+.dot.used-wrong { background: var(--red);   border-color: var(--red); }
+.dot.used-right { background: var(--green); border-color: var(--green); }
+
+.search-wrap {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+.search-input {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 6px;
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input::placeholder { color: var(--text3); }
+.search-input:focus {
+  border-color: var(--green2);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+.autocomplete {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.autocomplete::-webkit-scrollbar { width: 5px; }
+.autocomplete::-webkit-scrollbar-track { background: transparent; }
+.autocomplete::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.autocomplete.show { display: block; }
+.ac-item {
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover { background: var(--surface); }
+.ac-emoji { font-size: 1.4rem; flex-shrink: 0; }
+.ac-name { font-size: 0.95rem; color: var(--text); }
+.ac-sci  { font-size: 0.75rem; font-style: italic; color: var(--text3); }
+.ac-sci.match-sci { color: var(--accent); }
+.ac-count {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text3);
+  text-align: center;
+  padding: 0.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg3);
+  position: sticky;
+  bottom: 0;
+}
+
+.guess-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.8rem;
+  background: var(--green2);
+  border: none;
+  border-radius: 6px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.guess-btn:hover { background: var(--green); transform: translateY(-1px); }
+.guess-btn:active { transform: translateY(0); }
+.guess-btn:disabled { background: var(--text3); cursor: default; transform: none; }
+
+.guesses-list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 2rem; }
+
+.guess-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  animation: slideIn 0.35s ease both;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.guess-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.guess-emoji { font-size: 1.6rem; }
+.guess-names { flex: 1; }
+.guess-name { font-size: 1rem; font-weight: 600; color: var(--text); }
+.guess-sci  { font-size: 0.78rem; font-style: italic; color: var(--text3); }
+
+.prox-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 64px;
+}
+.prox-label {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.prox-bar-wrap {
+  width: 64px; height: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.prox-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+.prox-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.guess-attrs {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.attr-cell {
+  background: var(--bg2);
+  padding: 0.5rem 0.3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.attr-icon { font-size: 0.9rem; }
+.attr-key {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.attr-val {
+  font-size: 0.68rem;
+  color: var(--text2);
+  text-align: center;
+  line-height: 1.2;
+}
+.attr-cell.match   { background: rgba(106,191,75,0.15); }
+.attr-cell.match .attr-val { color: var(--green); font-weight: 600; }
+.attr-cell.partial { background: rgba(212,168,67,0.12); }
+.attr-cell.partial .attr-val { color: var(--yellow); }
+.attr-cell.nomatch { background: rgba(201,64,64,0.08); }
+.attr-cell.nomatch .attr-val { color: var(--red); }
+
+.phylo-hint {
+  padding: 0.7rem 1rem;
+  font-size: 0.83rem;
+  color: var(--text2);
+  border-left: 3px solid var(--green2);
+  background: var(--surface);
+}
+
+.result-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  display: none;
+  margin-top: 1rem;
+  animation: fadeUp 0.5s ease both;
+}
+.result-box.show { display: block; }
+.result-emoji { font-size: 4rem; margin-bottom: 0.5rem; }
+.result-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; margin-bottom: 0.3rem; }
+.result-subtitle { color: var(--text2); font-style: italic; margin-bottom: 1.2rem; }
+.result-bird-name { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+.result-bird-sci  { font-style: italic; color: var(--text3); font-size: 0.9rem; margin-bottom: 0.8rem; }
+.result-fact { font-size: 0.82rem; color: var(--text2); line-height: 1.5; background: var(--bg3); border-left: 3px solid var(--green2); border-radius: 4px; padding: 0.6rem 0.8rem; text-align: left; margin-bottom: 1.2rem; }
+.play-again {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.75rem 2rem; background: var(--green2);
+  border: none; border-radius: 6px; color: #fff; cursor: pointer; transition: background 0.2s;
+}
+.play-again:hover { background: var(--green); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 540px) {
+  .guess-attrs { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;">
+  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--accent);">Avi<span style="color:var(--text)">Guess</span></div>
+  <div style="font-family:'Syne Mono',monospace;font-size:0.75rem;color:var(--text3);letter-spacing:0.2em;animation:pulse 1.2s ease infinite;">Cargando aves...</div>
+</div>
+<style>@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }</style>
+
+<header>
+  <div style="position:absolute;top:1rem;right:1rem;display:flex;gap:0.5rem;z-index:2;">
+        <button onclick="openGuide()" style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:0.3rem 0.7rem;font-size:1rem;cursor:pointer;color:var(--text2);" title="Guía de Campo">📖</button>
+        <button onclick="openStats()" style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:0.3rem 0.7rem;font-size:1rem;cursor:pointer;color:var(--text2);" title="Estadísticas">📊</button>
+  </div>
+  <div class="logo">Avi<span>Guess</span></div>
+  <div class="header-meta">
+    <span class="meta-pill">Intentos: <strong id="attemptsLeft">10</strong></span>
+    <span class="meta-pill" id="dayPill" style="display:none">Ave del día: <strong>#<span id="dayNum">1</span></strong></span>
+    <span class="meta-pill" id="dailyStreakPill" style="display:none">🔥 Racha diaria: <strong id="dailyStreakNum">0</strong></span>
+  </div>
+  <div class="mode-tabs">
+    <button class="mode-tab daily" id="tabDaily" onclick="switchMode('daily')">📅 Diario</button>
+    <button class="mode-tab active" id="tabPractice" onclick="switchMode('practice')">🔁 Práctica</button>
+  </div>
+</header>
+
+<main>
+  <!-- Field Guide modal -->
+  <div id="guideModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:flex-start;justify-content:center;overflow-y:auto;padding:2rem 1rem;">
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:2rem;max-width:600px;width:100%;position:relative;margin:auto;">
+      <button onclick="closeGuide()" style="position:absolute;top:0.8rem;right:1rem;background:none;border:none;color:var(--text3);font-size:1.4rem;cursor:pointer;">×</button>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:0.3rem;">📖 Guía de Campo</div>
+      <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;color:var(--text3);margin-bottom:1.5rem;" id="guideCount"></div>
+      <div id="guideGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.8rem;"></div>
+      <div id="guideEmpty" style="text-align:center;color:var(--text3);font-style:italic;font-size:0.9rem;padding:2rem 0;display:none;">Aún no has identificado ningún ave.<br>¡Juega para completar tu guía!</div>
+      <div id="guidePagination" style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.2rem;">
+        <button id="guidePrev" onclick="guideChangePage(-1)" style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:0.4rem 1rem;color:var(--text2);cursor:pointer;font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;">← Ant</button>
+        <span id="guidePageInfo" style="font-family:'Syne Mono',monospace;font-size:0.75rem;color:var(--text3);"></span>
+        <button id="guideNext" onclick="guideChangePage(1)" style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:0.4rem 1rem;color:var(--text2);cursor:pointer;font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;">Sig →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hint box -->
+  <div id="hintBox" style="display:none;background:rgba(212,168,67,0.1);border:1px solid var(--yellow2);border-radius:6px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--yellow);animation:fadeUp 0.4s ease both;">
+    <strong style="font-family:'Syne',sans-serif;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;">🔎 Pista</strong>
+    <span id="hintText" style="display:block;margin-top:0.2rem;"></span>
+  </div>
+
+  <!-- Stats modal -->
+  <div id="statsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:2rem;max-width:400px;width:90%;position:relative;">
+      <button onclick="closeStats()" style="position:absolute;top:0.8rem;right:1rem;background:none;border:none;color:var(--text3);font-size:1.4rem;cursor:pointer;">×</button>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:1.5rem;text-align:center;">Estadísticas</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;text-align:center;margin-bottom:1.5rem;" id="statsNumbers"></div>
+      <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:0.7rem;">Distribución de intentos</div>
+      <div id="statsChart"></div>
+    </div>
+  </div>
+
+  <!-- Win celebration overlay -->
+  <div id="winOverlay" style="display:none;position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden;"></div>
+
+  <div class="result-banner" id="resultBanner">
+    <span class="banner-icon" id="bannerIcon">🏆</span>
+    <div class="banner-text">
+      <span id="bannerTitle"></span>
+      <span class="banner-sub" id="bannerSub"></span>
+      <span class="banner-fact" id="bannerFact"></span>
+    </div>
+  </div>
+
+  <div class="daily-done" id="dailyDone">
+    <div class="daily-done-title">Ya jugaste el ave de hoy</div>
+    <div class="daily-done-sub" id="dailyDoneSub">Vuelve mañana para un nuevo desafío, o juega en modo Práctica.</div>
+    <div id="countdown" style="font-family:'Syne Mono',monospace;font-size:0.85rem;color:var(--accent);margin-top:0.6rem;"></div>
+  </div>
+
+  <div class="how-to">
+    <strong>Cómo jugar</strong><br>
+    Adivina el ave oculta. Cada intento revela qué tan cerca estás en el <em>árbol filogenético</em>: cuanto mayor el % de proximidad, más relacionadas son las aves. Los atributos en <span style="color:var(--green)">verde</span> coinciden, <span style="color:var(--red)">rojo</span> no coincide.
+  </div>
+
+  <div class="silhouette-wrap">
+    <div class="sil-label">Ave oculta</div>
+    <div class="sil-emoji" id="silEmoji">🐦</div>
+  </div>
+
+  <div class="attempts-dots" id="attemptsDots"></div>
+
+  <div class="search-wrap">
+    <input type="text" class="search-input" id="searchInput" placeholder="Escribe el nombre de un ave…" autocomplete="off">
+    <div class="autocomplete" id="autocomplete"></div>
+  </div>
+  <button class="guess-btn" id="guessBtn" onclick="submitGuess()">Adivinar</button>
+
+  <!-- Mobile keyboard hint -->
+  <div id="mobileKbHint" style="display:none;text-align:center;margin-top:0.5rem;font-size:0.75rem;color:var(--text3);font-family:'Syne Mono',monospace;">toca el campo para escribir</div>
+
+  <div class="guesses-list" id="guessList"></div>
+</main>
+
+<script>
+const PHYLO = {
+  accipitriformes: {
+    accipitridae: ['águila real', 'quebrantahuesos', 'milano real', 'azor común', 'buitre leonado', 'alimoche común'],
+    pandionidae: ['águila pescadora'],
+  },
+  anseriformes: {
+    anatidae: ['ánade azulón', 'cisne vulgar', 'porrón moñudo', 'cerceta común', 'ganso cenizo', 'ánade friso', 'cuchara común'],
+  },
+  bucerotiformes: {
+    bucerotidae: ['cálao rinoceronte'],
+    upupidae: ['abubilla común'],
+  },
+  caprimulgiformes: {
+    trochilidae: ['colibrí garganta rubí'],
+    apodidae: ['vencejo común'],
+    caprimulgidae: ['chotacabras europeo'],
+  },
+  casuariiformes: {
+    dromaiidae: ['emú'],
+    casuariidae: ['casuario común'],
+  },
+  charadriiformes: {
+    alcidae: ['frailecillo atlántico'],
+    laridae: ['gaviota reidora', 'gaviota patiamarilla', 'charrán ártico'],
+    scolopacidae: ['zarapito real'],
+  },
+  ciconiiformes: {
+    ciconiidae: ['cigüeña blanca'],
+  },
+  columbiformes: {
+    columbidae: ['paloma bravía', 'tórtola turca'],
+  },
+  coraciiformes: {
+    alcedinidae: ['martín pescador común'],
+    meropidae: ['abejaruco europeo'],
+    coraciidae: ['carraca europea'],
+  },
+  cuculiformes: {
+    cuculidae: ['cuco común'],
+  },
+  falconiformes: {
+    falconidae: ['halcón peregrino', 'cernícalo vulgar'],
+  },
+  galliformes: {
+    phasianidae: ['faisán común', 'pavo real común', 'perdiz roja', 'codorniz común', 'urogallo común', 'pavo salvaje', 'gallo domestico'],
+  },
+  gruiformes: {
+    rallidae: ['focha común', 'gallineta común'],
+    gruidae: ['grulla común'],
+  },
+  otidiformes: {
+    otididae: ['sisón común'],
+  },
+  passeriformes: {
+    paradisaeidae: ['ave del paraíso esmeralda'],
+    muscicapidae: ['petirrojo europeo', 'ruiseñor común', 'tarabilla común', 'colirrojo tizón', 'roquero solitario'],
+    paridae: ['herrerillo común', 'carbonero común'],
+    turdidae: ['mirlo común', 'zorzal común'],
+    hirundinidae: ['golondrina común', 'avión común'],
+    motacillidae: ['lavandera blanca', 'lavandera cascadeña', 'bisbita común'],
+    fringillidae: ['jilguero europeo', 'verderón común', 'pinzón vulgar', 'camachuelo común'],
+    corvidae: ['arrendajo euroasiático', 'urraca común', 'cuervo común', 'graja'],
+    sturnidae: ['estornino pinto'],
+    passeridae: ['gorrión común'],
+    sittidae: ['trepador azul'],
+    aegithalidae: ['mito común'],
+    laniidae: ['alcaudón común'],
+    oriolidae: ['oropéndola europea'],
+    alaudidae: ['cogujada común', 'alondra común'],
+  },
+  pelecaniformes: {
+    pelecanidae: ['pelícano común'],
+    ardeidae: ['garza real'],
+    threskiornithidae: ['espátula común'],
+  },
+  phoenicopteriformes: {
+    phoenicopteridae: ['flamenco rosa'],
+  },
+  piciformes: {
+    ramphastidae: ['tucán toco'],
+    picidae: ['pico picapinos', 'pito real'],
+  },
+  podicipediformes: {
+    podicipedidae: ['somormujo lavanco', 'zampullín común'],
+  },
+  psittaciformes: {
+    psittacidae: ['guacamayo rojo', 'loro gris africano'],
+    cacatuidae: ['cacatúa blanca', 'cacatúa ninfa'],
+    psittaculidae: ['agapornis de namibia', 'periquito común'],
+  },
+  pterocliformes: {
+    pteroclidae: ['ganga ortega'],
+  },
+  sphenisciformes: {
+    spheniscidae: ['pingüino emperador'],
+  },
+  strigiformes: {
+    strigidae: ['búho real', 'búho nival'],
+    tytonidae: ['lechuza común'],
+  },
+  struthioniformes: {
+    struthionidae: ['avestruz común'],
+  },
+  suliformes: {
+    phalacrocoracidae: ['cormorán grande'],
+    sulidae: ['alcatraz atlántico'],
+  },
+};
+
+const BIRDS_RAW = [
+  { name: 'águila real', sci: 'Aquila chrysaetos', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'montaña', diet: 'carnívoro', size: 'grande', migratory: 'no', continent: 'Global', fact: 'Puede divisar una liebre desde 3 km de distancia.' },
+  { name: 'halcón peregrino', sci: 'Falco peregrinus', emoji: '🦅', order: 'Falconiformes', family: 'Falconidae', habitat: 'acantilados', diet: 'carnívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Es el animal más rápido del mundo, superando los 300 km/h en picado.' },
+  { name: 'búho real', sci: 'Bubo bubo', emoji: '🦉', order: 'Strigiformes', family: 'Strigidae', habitat: 'roquedos', diet: 'carnívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Es la rapaz nocturna más grande de Europa, capaz de girar la cabeza 270° y cazar en silencio absoluto gracias a plumas especializadas.' },
+  { name: 'quebrantahuesos', sci: 'Gypaetus Barbatus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'montaña', diet: 'necrófago', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Su alimentacion se basa principalmente en huesos pero tambien come tendones, pellejos y otras partes de los cadáveres.' },
+  { name: 'milano real', sci: 'Milvus milvus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Europa', fact: 'Es una rapaz inconfundible por su cola en forma de V y su plumaje rojizo, siendo un planeador excepcional que casi no gasta energía al volar.' },
+  { name: 'cernícalo vulgar', sci: 'Falco tinnunculus', emoji: '🦅', order: 'Falconiformes', family: 'Falconidae', habitat: 'campo abierto', diet: 'carnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es capaz de quedarse quieto en el aire batiendo las alas mientras busca presas.' },
+  { name: 'azor común', sci: 'Accipiter gentilis', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'bosque', diet: 'carnívoro', size: 'mediano', migratory: 'no', continent: 'Holártico', fact: 'Sus alas cortas y redondeadas le permiten perseguir presas entre la vegetación densa.' },
+  { name: 'lechuza común', sci: 'Tyto alba', emoji: '🦉', order: 'Strigiformes', family: 'Tytonidae', habitat: 'campo abierto', diet: 'carnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Su oído es tan preciso que puede cazar ratones en oscuridad total guiándose solo por el sonido.' },
+  { name: 'buitre leonado', sci: 'Gyps fulvus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'roquedos', diet: 'necrófago', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Se orinan en las patas para refrescarse y desinfectarse tras comer carroña.' },
+  { name: 'águila pescadora', sci: 'Pandion haliaetus', emoji: '🦅', order: 'Accipitriformes', family: 'Pandionidae', habitat: 'costas', diet: 'piscívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Es la única rapaz que se sumerge completamente en el agua para capturar a sus presas.' },
+  { name: 'pingüino emperador', sci: 'Aptenodytes forsteri', emoji: '🐧', order: 'Sphenisciformes', family: 'Spheniscidae', habitat: 'costas', diet: 'piscívoro', size: 'grande', migratory: 'sí', continent: 'Antártida', fact: 'Es el único animal que se reproduce durante el crudo invierno antártico.' },
+  { name: 'frailecillo atlántico', sci: 'Fratercula arctica', emoji: '🐧', order: 'Charadriiformes', family: 'Alcidae', habitat: 'acantilados', diet: 'piscívoro', size: 'pequeño', migratory: 'sí', continent: 'Europa', fact: 'Su pico se vuelve de colores brillantes solo durante la época de cría.' },
+  { name: 'gaviota reidora', sci: 'Chroicocephalus ridibundus', emoji: '🐦', order: 'Charadriiformes', family: 'Laridae', habitat: 'costas', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'En verano su cabeza se vuelve oscura, pareciendo que lleva una capucha.' },
+  { name: 'pelícano común', sci: 'Pelecanus onocrotalus', emoji: '🐦', order: 'Pelecaniformes', family: 'Pelecanidae', habitat: 'humedales', diet: 'piscívoro', size: 'grande', migratory: 'sí', continent: 'África', fact: 'Su bolsa gular puede almacenar hasta 13 litros de agua y peces.' },
+  { name: 'cormorán grande', sci: 'Phalacrocorax carbo', emoji: '🐦', order: 'Suliformes', family: 'Phalacrocoracidae', habitat: 'costas', diet: 'piscívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Debe secar sus alas extendidas al sol porque sus plumas no son impermeables.' },
+  { name: 'alcatraz atlántico', sci: 'Morus bassanus', emoji: '🐦', order: 'Suliformes', family: 'Sulidae', habitat: 'acantilados', diet: 'piscívoro', size: 'grande', migratory: 'sí', continent: 'Europa', fact: 'Se lanza al mar en picado desde 30 metros de altura a gran velocidad.' },
+  { name: 'gaviota patiamarilla', sci: 'Larus michahellis', emoji: '🐦', order: 'Charadriiformes', family: 'Laridae', habitat: 'costas', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Europa', fact: 'Es una especie muy oportunista que se ha adaptado a comer en basureros.' },
+  { name: 'charrán ártico', sci: 'Sterna paradisaea', emoji: '🐦', order: 'Charadriiformes', family: 'Laridae', habitat: 'costas', diet: 'piscívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Realiza la migración más larga del mundo, de polo a polo cada año.' },
+  { name: 'somormujo lavanco', sci: 'Podiceps cristatus', emoji: '🦆', order: 'Podicipediformes', family: 'Podicipedidae', habitat: 'humedales', diet: 'piscívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Realiza una danza nupcial sobre el agua muy compleja y elegante.' },
+  { name: 'alimoche común', sci: 'Neophron percnopterus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'montaña', diet: 'necrófago', size: 'mediano', migratory: 'sí', continent: 'Eurasia/África', fact: 'Es uno de los pocos animales que usa herramientas: lanza piedras para romper huevos de avestruz.' },
+  { name: 'ánade azulón', sci: 'Anas platyrhynchos', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Es el ancestro de casi todos los patos domésticos actuales.' },
+  { name: 'cisne vulgar', sci: 'Cygnus olor', emoji: '🦢', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'A pesar de su nombre, es una de las aves más pesadas que pueden volar.' },
+  { name: 'porrón moñudo', sci: 'Aythya fuligula', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es un pato buceador que puede bajar hasta varios metros para buscar comida.' },
+  { name: 'cerceta común', sci: 'Anas crecca', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es el pato más pequeño de Europa y vuela a gran velocidad en bandadas.' },
+  { name: 'ganso cenizo', sci: 'Anser anser', emoji: '🦢', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'grande', migratory: 'sí', continent: 'Eurasia', fact: 'Sus formaciones en \"V\" al volar les permiten ahorrar energía en viajes largos.' },
+  { name: 'flamenco rosa', sci: 'Phoenicopterus roseus', emoji: '🦩', order: 'Phoenicopteriformes', family: 'Phoenicopteridae', habitat: 'humedales', diet: 'omnívoro', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Su color rosa proviene de los pigmentos de los pequeños crustáceos que come.' },
+  { name: 'cigüeña blanca', sci: 'Ciconia ciconia', emoji: '🐦', order: 'Ciconiiformes', family: 'Ciconiidae', habitat: 'urbano', diet: 'omnívoro', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Son famosas por volver cada año exactamente al mismo nido en lo alto de torres.' },
+  { name: 'garza real', sci: 'Ardea cinerea', emoji: '🐦', order: 'Pelecaniformes', family: 'Ardeidae', habitat: 'humedales', diet: 'piscívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Puede permanecer inmóvil como una estatua durante horas esperando a un pez.' },
+  { name: 'espátula común', sci: 'Platalea leucorodia', emoji: '🐦', order: 'Pelecaniformes', family: 'Threskiornithidae', habitat: 'humedales', diet: 'invertebrados', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Su pico tiene una forma única que mueve de lado a lado para filtrar alimento.' },
+  { name: 'martín pescador común', sci: 'Alcedo atthis', emoji: '🐦', order: 'Coraciiformes', family: 'Alcedinidae', habitat: 'ribera', diet: 'piscívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Su plumaje azul brillante es estructural, no tiene pigmento azul en las plumas.' },
+  { name: 'guacamayo rojo', sci: 'Ara macao', emoji: '🦜', order: 'Psittaciformes', family: 'Psittacidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'América', fact: 'Sus fuertes picos pueden romper cáscaras de nueces extremadamente duras.' },
+  { name: 'cacatúa blanca', sci: 'Cacatua alba', emoji: '🦜', order: 'Psittaciformes', family: 'Cacatuidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'Oceanía', fact: 'Utiliza su cresta de plumas para comunicarse y expresar su estado de ánimo.' },
+  { name: 'agapornis de namibia', sci: 'Agapornis roseicollis', emoji: '🦜', order: 'Psittaciformes', family: 'Psittaculidae', habitat: 'matorral', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'África', fact: 'Se les conoce como \"inseparables\" porque las parejas pasan mucho tiempo juntas.' },
+  { name: 'periquito común', sci: 'Melopsittacus undulatus', emoji: '🦜', order: 'Psittaciformes', family: 'Psittaculidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Oceanía', fact: 'En estado salvaje son siempre verdes; los demás colores son por su cría doméstica.' },
+  { name: 'tucán toco', sci: 'Ramphastos toco', emoji: '🦜', order: 'Piciformes', family: 'Ramphastidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'América', fact: 'Su enorme pico le sirve para regular la temperatura corporal irradiando calor.' },
+  { name: 'cálao rinoceronte', sci: 'Buceros rhinoceros', emoji: '🦜', order: 'Bucerotiformes', family: 'Bucerotidae', habitat: 'bosque', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Asia', fact: 'La hembra se sella dentro del nido en un tronco, dejando solo una rendija para comer.' },
+  { name: 'cacatúa ninfa', sci: 'Nymphicus hollandicus', emoji: '🦜', order: 'Psittaciformes', family: 'Cacatuidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Oceanía', fact: 'Es una de las aves domésticas más inteligentes y capaces de imitar sonidos.' },
+  { name: 'ave del paraíso esmeralda', sci: 'Paradisaea apoda', emoji: '🐦', order: 'Passeriformes', family: 'Paradisaeidae', habitat: 'bosque', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Oceanía', fact: 'Los machos tienen plumas larguísimas y amarillas que usan en bailes nupciales.' },
+  { name: 'gallo domestico', sci: 'Gallus gallus domesticus', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Es el ave más numerosa del planeta, con más de 30.000 millones de ejemplares. Desciende del gallo bankiva.' },
+  { name: 'colibrí garganta rubí', sci: 'Archilochus colubris', emoji: '🐦', order: 'Caprimulgiformes', family: 'Trochilidae', habitat: 'bosque', diet: 'nectarívoro', size: 'pequeño', migratory: 'sí', continent: 'América', fact: 'Es la única ave capaz de volar hacia atrás y mantenerse suspendida en el aire.' },
+  { name: 'petirrojo europeo', sci: 'Erithacus rubecula', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Europa', fact: 'Es muy territorial y suele seguir a los jardineros para atrapar lombrices.' },
+  { name: 'herrerillo común', sci: 'Cyanistes caeruleus', emoji: '🐦', order: 'Passeriformes', family: 'Paridae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Europa', fact: 'Su plumaje azul brilla bajo la luz ultravioleta, algo que solo ellos ven.' },
+  { name: 'carbonero común', sci: 'Parus major', emoji: '🐦', order: 'Passeriformes', family: 'Paridae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Tiene un canto muy variado y es capaz de aprender a usar herramientas.' },
+  { name: 'ruiseñor común', sci: 'Luscinia megarhynchos', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Es famoso por cantar de noche con una potencia y complejidad asombrosas.' },
+  { name: 'mirlo común', sci: 'Turdus merula', emoji: '🐦', order: 'Passeriformes', family: 'Turdidae', habitat: 'urbano', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Los machos son negros con pico naranja, mientras las hembras son marrones.' },
+  { name: 'golondrina común', sci: 'Hirundo rustica', emoji: '🐦', order: 'Passeriformes', family: 'Hirundinidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Construye sus nidos con barro y paja en estructuras humanas como porches.' },
+  { name: 'avión común', sci: 'Delichon urbicum', emoji: '🐦', order: 'Passeriformes', family: 'Hirundinidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Pasa la mayor parte de su vida volando, incluso bebe agua sobre el vuelo.' },
+  { name: 'lavandera blanca', sci: 'Motacilla alba', emoji: '🐦', order: 'Passeriformes', family: 'Motacillidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Mueve su larga cola de arriba a abajo constantemente mientras camina.' },
+  { name: 'jilguero europeo', sci: 'Carduelis carduelis', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Su cara roja y alas amarillas lo hacen uno de los pájaros más coloridos.' },
+  { name: 'verderón común', sci: 'Chloris chloris', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'bosque', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'Europa', fact: 'Tiene un vuelo nupcial similar al de las mariposas para atraer hembras.' },
+  { name: 'pinzón vulgar', sci: 'Fringilla coelebs', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Su nombre científico significa \"pinzón soltero\" porque los sexos migran separados.' },
+  { name: 'camachuelo común', sci: 'Pyrrhula pyrrhula', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'bosque', diet: 'herbívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Es muy tímido y suele delatarse solo por su reclamo, un silbido melancólico.' },
+  { name: 'arrendajo euroasiático', sci: 'Garrulus glandarius', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'bosque', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Es el \"centinela del bosque\"; avisa con gritos al resto de animales si hay peligro.' },
+  { name: 'urraca común', sci: 'Pica pica', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'urbano', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Es una de las pocas especies animales capaz de reconocerse a sí misma en un espejo.' },
+  { name: 'cuervo común', sci: 'Corvus corax', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'montaña', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Global', fact: 'Es el paseriforme más grande y puede imitar sonidos humanos mejor que muchos loros.' },
+  { name: 'graja', sci: 'Corvus frugilegus', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Son aves muy sociales que anidan en colonias ruidosas llamadas grajeras.' },
+  { name: 'estornino pinto', sci: 'Sturnus vulgaris', emoji: '🐦', order: 'Passeriformes', family: 'Sturnidae', habitat: 'urbano', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Crea nubes de miles de ejemplares que dibujan formas increíbles en el cielo.' },
+  { name: 'gorrión común', sci: 'Passer domesticus', emoji: '🐦', order: 'Passeriformes', family: 'Passeridae', habitat: 'urbano', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Es el ave más vinculada al ser humano, presente en casi todas las ciudades del mundo.' },
+  { name: 'trepador azul', sci: 'Sitta europaea', emoji: '🐦', order: 'Passeriformes', family: 'Sittidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Es la única ave europea capaz de bajar por los troncos de los árboles cabeza abajo.' },
+  { name: 'lavandera cascadeña', sci: 'Motacilla cinerea', emoji: '🐦', order: 'Passeriformes', family: 'Motacillidae', habitat: 'ribera', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Siempre vive ligada a cursos de agua limpia y rápida, como ríos de montaña.' },
+  { name: 'faisán común', sci: 'Phasianus colchicus', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Asia', fact: 'Fue introducido en todo el mundo como ave de caza por su vistoso plumaje.' },
+  { name: 'pavo real común', sci: 'Pavo cristatus', emoji: '🦚', order: 'Galliformes', family: 'Phasianidae', habitat: 'bosque', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Asia', fact: 'Su cola no es su cola real, sino plumas alargadas de la parte baja de la espalda.' },
+  { name: 'cuchara común', sci: 'Spatula clypeata', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Su pico en forma de espátula tiene unas láminas internas que usa para filtrar pequeños organismos del agua.' },
+  { name: 'perdiz roja', sci: 'Alectoris rufa', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'Europa', fact: 'Prefiere correr por el suelo antes que volar cuando detecta un peligro.' },
+  { name: 'codorniz común', sci: 'Coturnix coturnix', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'A diferencia de otras gallináceas, es una gran migradora que cruza el Sáhara.' },
+  { name: 'urogallo común', sci: 'Tetrao urogallus', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'bosque', diet: 'herbívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Los machos realizan exhibiciones sonoras increíbles en lugares llamados \"cantaderos\".' },
+  { name: 'pavo salvaje', sci: 'Meleagris gallopavo', emoji: '🦃', order: 'Galliformes', family: 'Phasianidae', habitat: 'bosque', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'América', fact: 'Es capaz de volar distancias cortas a pesar de su gran peso y tamaño.' },
+  { name: 'avestruz común', sci: 'Struthio camelus', emoji: '🐦', order: 'Struthioniformes', family: 'Struthionidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'África', fact: 'Es el ave más grande y rápida en tierra, alcanzando los 70 km/h.' },
+  { name: 'emú', sci: 'Dromaius novaehollandiae', emoji: '🐦', order: 'Casuariiformes', family: 'Dromaiidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Oceanía', fact: 'Es la segunda ave más grande del mundo y tiene tres dedos en cada pata.' },
+  { name: 'casuario común', sci: 'Casuarius casuarius', emoji: '🐦', order: 'Casuariiformes', family: 'Casuariidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'Oceanía', fact: 'Tiene una protuberancia en la cabeza llamada casco que usa para abrirse paso en la selva.' },
+  { name: 'paloma bravía', sci: 'Columba livia', emoji: '🕊️', order: 'Columbiformes', family: 'Columbidae', habitat: 'urbano', diet: 'granívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Es el ancestro de todas las palomas domésticas y mensajeras del mundo.' },
+  { name: 'tórtola turca', sci: 'Streptopelia decaocto', emoji: '🕊️', order: 'Columbiformes', family: 'Columbidae', habitat: 'urbano', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Se ha expandido por todo el mundo de forma asombrosa en los últimos 100 años.' },
+  { name: 'ganga ortega', sci: 'Pterocles orientalis', emoji: '🐓', order: 'Pterocliformes', family: 'Pteroclidae', habitat: 'campo abierto', diet: 'granívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Transporta agua para sus polluelos empapando las plumas de su pecho en charcas.' },
+  { name: 'abubilla común', sci: 'Upupa epops', emoji: '🐦', order: 'Bucerotiformes', family: 'Upupidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Cuando se asusta, despliega su cresta de plumas en forma de abanico.' },
+  { name: 'cuco común', sci: 'Cuculus canorus', emoji: '🕊️', order: 'Cuculiformes', family: 'Cuculidae', habitat: 'bosque', diet: 'insectívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'No construye nido; pone sus huevos en nidos de otras aves para que los críen.' },
+  { name: 'vencejo común', sci: 'Apus apus', emoji: '🐦', order: 'Caprimulgiformes', family: 'Apodidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Puede pasar hasta 10 meses volando sin aterrizar ni una sola vez.' },
+  { name: 'chotacabras europeo', sci: 'Caprimulgus europaeus', emoji: '🐦', order: 'Caprimulgiformes', family: 'Caprimulgidae', habitat: 'bosque', diet: 'insectívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Su plumaje parece corteza de árbol, lo que le permite camuflarse perfectamente de día.' },
+  { name: 'abejaruco europeo', sci: 'Merops apiaster', emoji: '🐦', order: 'Coraciiformes', family: 'Meropidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Antes de comerse una abeja, la golpea contra una rama para quitarle el aguijón y el veneno.' },
+  { name: 'carraca europea', sci: 'Coracias garrulus', emoji: '🐦', order: 'Coraciiformes', family: 'Coraciidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es famosa por sus acrobacias aéreas y su espectacular color azul turquesa.' },
+  { name: 'pico picapinos', sci: 'Dendrocopos major', emoji: '🐦', order: 'Piciformes', family: 'Picidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Tamborilea en los troncos para marcar su territorio y atraer a su pareja.' },
+  { name: 'ánade friso', sci: 'Mareca strepera', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Es un pato elegante donde el macho destaca por su intrincado patrón de plumas grises.' },
+  { name: 'zampullín común', sci: 'Tachybaptus ruficollis', emoji: '🦆', order: 'Podicipediformes', family: 'Podicipedidae', habitat: 'humedales', diet: 'piscívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Es un experto buceador que desaparece bajo el agua ante la menor señal de peligro.' },
+  { name: 'loro gris africano', sci: 'Psittacus erithacus', emoji: '🦜', order: 'Psittaciformes', family: 'Psittacidae', habitat: 'bosque', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'África', fact: 'Es considerado uno de los animales más inteligentes del mundo por su capacidad cognitiva.' },
+  { name: 'zorzal común', sci: 'Turdus philomelos', emoji: '🐦', order: 'Passeriformes', family: 'Turdidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Utiliza piedras como \"yunques\" para romper las conchas de los caracoles y comerlos.' },
+  { name: 'zarapito real', sci: 'Numenius arquata', emoji: '🐦', order: 'Charadriiformes', family: 'Scolopacidae', habitat: 'costas', diet: 'invertebrados', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Posee un pico larguísimo y curvado hacia abajo que parece una cimitarra.' },
+  { name: 'mito común', sci: 'Aegithalos caudatus', emoji: '🐦', order: 'Passeriformes', family: 'Aegithalidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Parece una pequeña bola de algodón con una cola desproporcionadamente larga.' },
+  { name: 'focha común', sci: 'Fulica atra', emoji: '🦆', order: 'Gruiformes', family: 'Rallidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Sus patas no tienen membranas, sino unos lóbulos anchos para nadar y caminar sobre el lodo.' },
+  { name: 'gallineta común', sci: 'Gallinula chloropus', emoji: '🦆', order: 'Gruiformes', family: 'Rallidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Se reconoce fácilmente por su pico rojo con la punta amarilla y su escudo frontal rojo.' },
+  { name: 'grulla común', sci: 'Grus grus', emoji: '🐦', order: 'Gruiformes', family: 'Gruidae', habitat: 'humedales', diet: 'omnívoro', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Sus potentes trompeteos se oyen a kilómetros y sus bandadas en \"V\" anuncian el invierno.' },
+  { name: 'sisón común', sci: 'Tetrax tetrax', emoji: '🐦', order: 'Otidiformes', family: 'Otididae', habitat: 'campo abierto', diet: 'herbívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'El macho emite un siseo con las alas al volar para atraer a las hembras durante el celo.' },
+  { name: 'alcaudón común', sci: 'Lanius senator', emoji: '🐦', order: 'Passeriformes', family: 'Laniidae', habitat: 'campo abierto', diet: 'carnívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Tiene la costumbre de empalar a sus presas (insectos o lagartijas) en espinas o alambres.' },
+  { name: 'oropéndola europea', sci: 'Oriolus oriolus', emoji: '🐦', order: 'Passeriformes', family: 'Oriolidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'A pesar de su color amarillo brillante, es muy difícil de ver porque vive en las copas altas.' },
+  { name: 'bisbita común', sci: 'Anthus pratensis', emoji: '🐦', order: 'Passeriformes', family: 'Motacillidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Es un ave muy discreta que suele caminar y anidar directamente en el suelo de las praderas.' },
+  { name: 'cogujada común', sci: 'Galerida cristata', emoji: '🐦', order: 'Passeriformes', family: 'Alaudidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Se distingue por su cresta larga y puntiaguda que mantiene siempre erguida.' },
+  { name: 'alondra común', sci: 'Alauda arvensis', emoji: '🐦', order: 'Passeriformes', family: 'Alaudidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Es famosa por su canto melodioso y prolongado que emite mientras vuela a gran altura.' },
+  { name: 'tarabilla común', sci: 'Saxicola rubicola', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'matorral', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Suele posarse en lo alto de arbustos o postes para vigilar su territorio.' },
+  { name: 'colirrojo tizón', sci: 'Phoenicurus ochruros', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Se ha adaptado perfectamente a las ciudades, donde anida en huecos de edificios y muros.' },
+  { name: 'roquero solitario', sci: 'Monticola solitarius', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'roquedos', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'El macho es de un color azul oscuro inconfundible y suele vivir en zonas de roca y acantilados.' },
+  { name: 'búho nival', sci: 'Bubo scandiacus', emoji: '🦉', order: 'Strigiformes', family: 'Strigidae', habitat: 'tundra', diet: 'carnívoro', size: 'grande', migratory: 'sí', continent: 'Holártico', fact: 'A diferencia de otros búhos, es principalmente diurno debido a las largas horas de luz del Ártico.' },
+  { name: 'pito real', sci: 'Picus sharpei', emoji: '🐦', order: 'Piciformes', family: 'Picidae', habitat: 'bosque', diet: 'insectívoro', size: 'mediano', migratory: 'no', continent: 'Europa', fact: 'Tiene una lengua larguísima y pegajosa para extraer hormigas de sus nidos.' },
+];
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function toTitle(str) {
+  return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+function stripAccents(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+let BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) }));
+
+// ─── PHYLOGENY ────────────────────────────────────────────────────────────────
+function getPhyloInfo(birdName) {
+  const bn = birdName.toLowerCase();
+  for (const [superorder, families] of Object.entries(PHYLO)) {
+    for (const [family, members] of Object.entries(families)) {
+      if (members.includes(bn)) return { superorder, family };
+    }
+  }
+  return null;
+}
+
+function calcProximity(nameA, nameB) {
+  const a = getPhyloInfo(nameA);
+  const b = getPhyloInfo(nameB);
+  if (!a || !b) return { pct: 0, hint: 'relación desconocida' };
+  if (nameA.toLowerCase() === nameB.toLowerCase()) return { pct: 100, hint: 'misma especie' };
+  if (a.family === b.family) return { pct: 85, hint: `misma familia: ${a.family}` };
+  if (a.superorder === b.superorder) return { pct: 60, hint: `mismo orden/clado: ${a.superorder.replace(/_/g, ' ')}` };
+  const aIsPass = a.superorder.startsWith('passeriformes');
+  const bIsPass = b.superorder.startsWith('passeriformes');
+  if (aIsPass && bIsPass) return { pct: 45, hint: 'ambas son Passeriformes (distintas superfamilias)' };
+  const palaeogFamilies = Object.values(PHYLO.palaeognathae || {}).flat();
+  const galloan = ['anatidae', 'phasianidae', 'numididae'];
+  const aIsNeo = !palaeogFamilies.includes(a.family) && !galloan.includes(a.family);
+  const bIsNeo = !palaeogFamilies.includes(b.family) && !galloan.includes(b.family);
+  if (aIsNeo && bIsNeo)  return { pct: 30, hint: 'ambas son Neoaves (clados distintos)' };
+  if (!aIsNeo && !bIsNeo) return { pct: 20, hint: 'ambas son aves basales' };
+  return { pct: 10, hint: 'clados muy distantes en el árbol aviar' };
+}
+
+const ATTRS = [
+  { key: 'order',     icon: '🌿', label: 'Orden' },
+  { key: 'family',    icon: '🔬', label: 'Familia' },
+  { key: 'habitat',   icon: '🏔️', label: 'Hábitat' },
+  { key: 'diet',      icon: '🍖', label: 'Dieta' },
+  { key: 'size',      icon: '📏', label: 'Tamaño' },
+  { key: 'migratory', icon: '🧭', label: 'Migración' },
+  { key: 'continent', icon: '🌍', label: 'Continente' },
+];
+
+function compareAttr(guessVal, targetVal, key) {
+  if (guessVal === targetVal) return 'match';
+  if (key === 'continent') {
+    const g = guessVal.split('/');
+    const t = targetVal.split('/');
+    if (g.some(x => t.includes(x))) return 'partial';
+  }
+  return 'nomatch';
+}
+
+// ─── DAILY ────────────────────────────────────────────────────────────────────
+function getTodayKey() {
+  const d = new Date();
+  return `avizooa_daily_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+function getDayNumber() {
+  const epoch = new Date('2026-03-04');
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.floor((today - epoch) / 86400000) + 1;
+}
+function getDailyBird() { return BIRDS[getDayNumber() % BIRDS.length]; }
+function saveDailyResult(win, attempts) {
+  try { localStorage.setItem(getTodayKey(), JSON.stringify({ win, attempts })); } catch(e) {}
+}
+function loadDailyResult() {
+  try { return JSON.parse(localStorage.getItem(getTodayKey())); } catch(e) { return null; }
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem('aviguess_stats')) || { played:0, won:0, streak:0, maxStreak:0, dist:{} }; }
+  catch(e) { return { played:0, won:0, streak:0, maxStreak:0, dist:{} }; }
+}
+function saveStats(s) { try { localStorage.setItem('aviguess_stats', JSON.stringify(s)); } catch(e) {} }
+
+function recordResult(win, attempts) {
+  const s = loadStats();
+  s.played++;
+  if (win) {
+    s.won++;
+    s.streak++;
+    s.maxStreak = Math.max(s.maxStreak, s.streak);
+    s.dist[attempts] = (s.dist[attempts] || 0) + 1;
+  } else {
+    s.streak = 0;
+  }
+  saveStats(s);
+}
+
+function openStats() {
+  const s = loadStats();
+  const pct = s.played ? Math.round(s.won / s.played * 100) : 0;
+  document.getElementById('statsNumbers').innerHTML = `
+    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${s.played}</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Jugadas</div></div>
+    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${pct}%</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Victorias</div></div>
+    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${s.streak}</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Racha</div></div>
+    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${s.maxStreak}</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Máx. racha</div></div>`;
+  const max = Math.max(...Object.values(s.dist), 1);
+  let chartHtml = '';
+  for (let i = 1; i <= MAX_ATTEMPTS; i++) {
+    const count = s.dist[i] || 0;
+    const w = Math.round(count / max * 100);
+    chartHtml += `<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:4px;">
+      <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;color:var(--text3);width:12px;text-align:right">${i}</div>
+      <div style="flex:1;background:var(--bg3);border-radius:3px;height:18px;overflow:hidden;">
+        <div style="width:${w}%;background:var(--green2);height:100%;border-radius:3px;transition:width 0.5s;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;">
+          ${count > 0 ? `<span style="font-size:0.65rem;color:#fff;font-family:'Syne Mono',monospace">${count}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('statsChart').innerHTML = chartHtml;
+  const modal = document.getElementById('statsModal');
+  modal.style.display = 'flex';
+}
+function closeStats() { document.getElementById('statsModal').style.display = 'none'; }
+document.getElementById('statsModal').addEventListener('click', e => { if (e.target === document.getElementById('statsModal')) closeStats(); });
+
+// ─── COUNTDOWN ────────────────────────────────────────────────────────────────
+function updateCountdown() {
+  const el = document.getElementById('countdown');
+  if (!el) return;
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  const diff = tomorrow - now;
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  el.textContent = `Próxima ave en ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ─── WIN CELEBRATION ──────────────────────────────────────────────────────────
+function launchConfetti() {
+  const overlay = document.getElementById('winOverlay');
+  overlay.style.display = 'block';
+  overlay.innerHTML = '';
+  const emojis = ['🐦','🦅','🦉','🦜','🌿','✨','🏆'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.cssText = `position:absolute;font-size:${1.2 + Math.random()*1.5}rem;left:${Math.random()*100}%;top:-3rem;
+      animation:fall ${2 + Math.random()*3}s linear ${Math.random()*1.5}s forwards;opacity:1;`;
+    overlay.appendChild(el);
+  }
+  const style = document.createElement('style');
+  style.textContent = `@keyframes fall { to { transform: translateY(110vh) rotate(${Math.random()>0.5?'':'-'}${360+Math.floor(Math.random()*360)}deg); opacity:0; } }`;
+  document.head.appendChild(style);
+  setTimeout(() => { overlay.style.display = 'none'; overlay.innerHTML = ''; }, 5000);
+}
+
+// ─── MOBILE KEYBOARD DETECTION ───────────────────────────────────────────────
+function isMobile() { return window.innerWidth <= 600 || ('ontouchstart' in window); }
+function setupMobileInput() {
+  if (isMobile()) {
+    document.getElementById('mobileKbHint').style.display = 'block';
+    const inp = document.getElementById('searchInput');
+    inp.setAttribute('inputmode', 'text');
+    inp.setAttribute('autocorrect', 'off');
+    inp.setAttribute('autocapitalize', 'none');
+  }
+}
+
+// ─── GAME STATE ───────────────────────────────────────────────────────────────
+const MAX_ATTEMPTS = 10;
+let target, guesses, gameOver, currentMode;
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('tabDaily').classList.toggle('active', mode === 'daily');
+  document.getElementById('tabPractice').classList.toggle('active', mode === 'practice');
+  document.getElementById('dayPill').style.display = mode === 'daily' ? '' : 'none';
+  initGame();
+}
+
+function initGame() {
+  guesses  = [];
+  gameOver = false;
+  document.getElementById('guessList').innerHTML = '';
+  document.getElementById('resultBanner').classList.remove('show', 'win', 'lose');
+  document.getElementById('bannerFact').textContent = '';
+  const oldBtn = document.querySelector('#resultBanner .play-again');
+  if (oldBtn) oldBtn.remove();
+  document.getElementById('dailyDone').classList.remove('show');
+  document.getElementById('hintBox').style.display = 'none';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').disabled = false;
+  document.getElementById('guessBtn').disabled = false;
+  const sil = document.getElementById('silEmoji');
+  sil.textContent = '🐦';
+  sil.style.filter = 'brightness(0) invert(0.1)';
+  sil.classList.remove('revealed');
+  document.getElementById('attemptsLeft').textContent = MAX_ATTEMPTS;
+  renderDots();
+
+  if (currentMode === 'daily') {
+    target = getDailyBird();
+    document.getElementById('dayNum').textContent = getDayNumber();
+    updateDailyStreakDisplay();
+
+    const saved = loadDailyResult();
+    if (saved) {
+      document.getElementById('searchInput').disabled = true;
+      document.getElementById('guessBtn').disabled = true;
+      sil.textContent = target.emoji;
+      sil.style.filter = 'brightness(1)';
+      sil.classList.add('revealed');
+      document.getElementById('dailyDone').classList.add('show');
+      document.getElementById('dailyDoneSub').textContent = saved.win
+        ? `Acertaste en ${saved.attempts} intento${saved.attempts > 1 ? 's' : ''}`
+        : `No lo conseguiste — era ${target.name}`;
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    } else {
+      // Restore in-progress game
+      const progress = loadDailyProgress();
+      if (progress && progress.guesses && progress.guesses.length > 0) {
+        for (const name of progress.guesses) {
+          const bird = BIRDS.find(b => b.name.toLowerCase() === name);
+          if (bird) { guesses.push(bird); renderGuessRow(bird); }
+        }
+        renderDots();
+        document.getElementById('attemptsLeft').textContent = MAX_ATTEMPTS - guesses.length;
+        showHintIfNeeded();
+      }
+    }
+  } else {
+    document.getElementById('dailyStreakPill').style.display = 'none';
+    target = BIRDS[Math.floor(Math.random() * BIRDS.length)];
+  }
+}
+
+function renderDots() {
+  const wrap = document.getElementById('attemptsDots');
+  wrap.innerHTML = '';
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i < guesses.length) {
+      d.classList.add(guesses[i].name.toLowerCase() === target.name.toLowerCase() ? 'used-right' : 'used-wrong');
+    }
+    wrap.appendChild(d);
+  }
+}
+
+// ─── AUTOCOMPLETE ─────────────────────────────────────────────────────────────
+let selectedBird = null;
+const input = document.getElementById('searchInput');
+const ac    = document.getElementById('autocomplete');
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { ac.classList.remove('show'); submitGuess(); }
+});
+
+input.addEventListener('input', () => {
+  const q = stripAccents(input.value.trim());
+  selectedBird = null;
+  if (!q) { ac.classList.remove('show'); return; }
+  const used = guesses.map(g => g.name.toLowerCase());
+  const matches = BIRDS.filter(b =>
+    !used.includes(b.name.toLowerCase()) &&
+    (stripAccents(b.name).includes(q) || stripAccents(b.sci).includes(q))
+  );
+  if (!matches.length) { ac.classList.remove('show'); return; }
+  const items = matches.map(b => {
+    const matchesSci = stripAccents(b.sci).includes(q) && !stripAccents(b.name).includes(q);
+    return `<div class="ac-item" onclick="selectBird('${b.name.replace(/'/g,"\\'")}')">
+      <span class="ac-emoji">${b.emoji}</span>
+      <div>
+        <div class="ac-name">${b.name}</div>
+        <div class="ac-sci${matchesSci ? ' match-sci' : ''}">${b.sci}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const footer = matches.length > 5
+    ? `<div class="ac-count">${matches.length} resultados — desplázate para ver más</div>` : '';
+  ac.innerHTML = items + footer;
+  ac.classList.add('show');
+});
+
+function selectBird(name) {
+  input.value = name;
+  selectedBird = BIRDS.find(b => b.name === name);
+  ac.classList.remove('show');
+  submitGuess(); // auto-submit on selection
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) ac.classList.remove('show');
+});
+
+// ─── DAILY GAME PERSISTENCE ───────────────────────────────────────────────────
+function saveDailyProgress() {
+  if (currentMode !== 'daily') return;
+  try {
+    localStorage.setItem(getTodayKey() + '_progress', JSON.stringify({
+      guesses: guesses.map(b => b.name.toLowerCase()),
+      gameOver
+    }));
+  } catch(e) {}
+}
+
+function loadDailyProgress() {
+  try {
+    const raw = localStorage.getItem(getTodayKey() + '_progress');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+// ─── HINT AT ATTEMPT 5 ────────────────────────────────────────────────────────
+function showHintIfNeeded() {
+  if (guesses.length !== 5 || gameOver) return;
+  const hints = [
+    `Su orden es: ${target.order}`,
+    `Su hábitat es: ${target.habitat}`,
+    `Su dieta es: ${target.diet}`,
+    `Su tamaño es: ${target.size}`,
+    `Su continente es: ${target.continent}`,
+  ];
+  const hint = hints[Math.floor(Math.random() * hints.length)];
+  document.getElementById('hintText').textContent = hint;
+  document.getElementById('hintBox').style.display = 'block';
+}
+
+// ─── DAILY STREAK ─────────────────────────────────────────────────────────────
+function loadDailyStreak() {
+  try { return JSON.parse(localStorage.getItem('aviguess_daily_streak')) || { streak: 0, lastDay: 0 }; }
+  catch(e) { return { streak: 0, lastDay: 0 }; }
+}
+function saveDailyStreak(won) {
+  const day = getDayNumber();
+  const s = loadDailyStreak();
+  if (won) {
+    s.streak = (s.lastDay === day - 1) ? s.streak + 1 : 1;
+  } else {
+    s.streak = 0;
+  }
+  s.lastDay = day;
+  try { localStorage.setItem('aviguess_daily_streak', JSON.stringify(s)); } catch(e) {}
+  return s.streak;
+}
+function updateDailyStreakDisplay() {
+  if (currentMode !== 'daily') { document.getElementById('dailyStreakPill').style.display = 'none'; return; }
+  const s = loadDailyStreak();
+  if (s.streak > 0) {
+    document.getElementById('dailyStreakNum').textContent = s.streak;
+    document.getElementById('dailyStreakPill').style.display = '';
+  } else {
+    document.getElementById('dailyStreakPill').style.display = 'none';
+  }
+}
+
+// ─── FIELD GUIDE ──────────────────────────────────────────────────────────────
+function loadCollection() {
+  try { return JSON.parse(localStorage.getItem('aviguess_collection')) || []; }
+  catch(e) { return []; }
+}
+function addToCollection(birdName) {
+  const col = loadCollection();
+  if (!col.includes(birdName.toLowerCase())) {
+    col.push(birdName.toLowerCase());
+    try { localStorage.setItem('aviguess_collection', JSON.stringify(col)); } catch(e) {}
+  }
+}
+const GUIDE_PER_PAGE = 10;
+let guidePage = 0;
+let guideFoundBirds = [];
+
+function renderGuidePage() {
+  const start = guidePage * GUIDE_PER_PAGE;
+  const page = guideFoundBirds.slice(start, start + GUIDE_PER_PAGE);
+  const totalPages = Math.ceil(guideFoundBirds.length / GUIDE_PER_PAGE);
+
+  document.getElementById('guideGrid').innerHTML = page.map(b => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.8rem;display:flex;gap:0.7rem;align-items:flex-start;">
+      <span style="font-size:1.8rem;flex-shrink:0;">${b.emoji}</span>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--text)">${b.name}</div>
+        <div style="font-size:0.72rem;font-style:italic;color:var(--text3);margin-bottom:0.3rem;">${b.sci}</div>
+        <div style="font-size:0.75rem;color:var(--text2);line-height:1.4;">${b.fact}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('guidePageInfo').textContent = `${guidePage + 1} / ${totalPages}`;
+  document.getElementById('guidePrev').disabled = guidePage === 0;
+  document.getElementById('guidePrev').style.opacity = guidePage === 0 ? '0.3' : '1';
+  document.getElementById('guideNext').disabled = guidePage >= totalPages - 1;
+  document.getElementById('guideNext').style.opacity = guidePage >= totalPages - 1 ? '0.3' : '1';
+  document.getElementById('guidePagination').style.display = totalPages <= 1 ? 'none' : 'flex';
+}
+
+function guideChangePage(dir) {
+  const totalPages = Math.ceil(guideFoundBirds.length / GUIDE_PER_PAGE);
+  guidePage = Math.max(0, Math.min(totalPages - 1, guidePage + dir));
+  renderGuidePage();
+}
+
+function openGuide() {
+  const col = loadCollection();
+  const total = BIRDS.length;
+  document.getElementById('guideCount').textContent = `${col.length} de ${total} aves identificadas`;
+  guideFoundBirds = BIRDS.filter(b => col.includes(b.name.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  guidePage = 0;
+
+  if (guideFoundBirds.length === 0) {
+    document.getElementById('guideEmpty').style.display = 'block';
+    document.getElementById('guideGrid').innerHTML = '';
+    document.getElementById('guidePagination').style.display = 'none';
+  } else {
+    document.getElementById('guideEmpty').style.display = 'none';
+    renderGuidePage();
+  }
+  document.getElementById('guideModal').style.display = 'flex';
+}
+function closeGuide() { document.getElementById('guideModal').style.display = 'none'; }
+document.getElementById('guideModal').addEventListener('click', e => { if (e.target === document.getElementById('guideModal')) closeGuide(); });
+
+
+
+// ─── SUBMIT ───────────────────────────────────────────────────────────────────
+function submitGuess() {
+  if (gameOver) return;
+  const name = input.value.trim();
+  const bird = selectedBird || BIRDS.find(b => b.name.toLowerCase() === name.toLowerCase());
+  if (!bird) { input.style.borderColor = 'var(--red)'; setTimeout(() => input.style.borderColor = '', 600); return; }
+  if (guesses.find(g => g.name.toLowerCase() === bird.name.toLowerCase())) return;
+
+  guesses.push(bird);
+  input.value = ''; selectedBird = null;
+  renderGuessRow(bird);
+  renderDots();
+  saveDailyProgress();
+  showHintIfNeeded();
+  document.getElementById('attemptsLeft').textContent = MAX_ATTEMPTS - guesses.length;
+
+  if (bird.name.toLowerCase() === target.name.toLowerCase()) { endGame(true); return; }
+  if (guesses.length >= MAX_ATTEMPTS) { endGame(false); }
+}
+
+function renderGuessRow(bird) {
+  const { pct, hint } = calcProximity(bird.name, target.name);
+  const color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : pct >= 30 ? 'var(--yellow2)' : 'var(--red)';
+
+  const attrsHtml = ATTRS.map(a => {
+    const cls = compareAttr(bird[a.key], target[a.key], a.key);
+    return `<div class="attr-cell ${cls}">
+      <span class="attr-icon">${a.icon}</span>
+      <span class="attr-key">${a.label}</span>
+      <span class="attr-val">${bird[a.key]}</span>
+    </div>`;
+  }).join('');
+
+  const row = document.createElement('div');
+  row.className = 'guess-row';
+  row.innerHTML = `
+    <div class="guess-header">
+      <span class="guess-emoji">${bird.emoji}</span>
+      <div class="guess-names">
+        <div class="guess-name">${bird.name}</div>
+        <div class="guess-sci">${bird.sci}</div>
+      </div>
+      <div class="prox-badge">
+        <span class="prox-label">Proximidad</span>
+        <div class="prox-bar-wrap">
+          <div class="prox-bar-fill" style="width:0%;background:${color}" data-pct="${pct}"></div>
+        </div>
+        <span class="prox-pct" style="color:${color}">${pct}%</span>
+      </div>
+    </div>
+    <div class="guess-attrs">${attrsHtml}</div>
+    <div class="phylo-hint">🌿 <em>${hint}</em></div>`;
+
+  document.getElementById('guessList').prepend(row);
+  setTimeout(() => {
+    const fill = row.querySelector('.prox-bar-fill');
+    if (fill) fill.style.width = fill.dataset.pct + '%';
+  }, 50);
+}
+
+// ─── END GAME ─────────────────────────────────────────────────────────────────
+function showBanner(win, attempts) {
+  const banner = document.getElementById('resultBanner');
+  banner.classList.remove('win', 'lose');
+  banner.classList.add('show', win ? 'win' : 'lose');
+  document.getElementById('bannerIcon').textContent = win ? '🏆' : '💀';
+  document.getElementById('bannerTitle').textContent = win
+    ? `¡${target.name} identificado!` : `Era ${target.name}`;
+  document.getElementById('bannerSub').textContent = win
+    ? `Acertaste en ${attempts} intento${attempts > 1 ? 's' : ''}`
+    : `Sin más intentos — ${target.sci}`;
+  document.getElementById('bannerFact').textContent = `💡 ${target.fact}`;
+  banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function endGame(win) {
+  gameOver = true;
+  document.getElementById('searchInput').disabled = true;
+  document.getElementById('guessBtn').disabled = true;
+
+  const sil = document.getElementById('silEmoji');
+  sil.textContent = target.emoji;
+  sil.classList.add('revealed');
+  sil.style.filter = 'brightness(1)';
+
+  if (currentMode === 'daily') {
+    saveDailyResult(win, guesses.length);
+    saveDailyStreak(win);
+    // Clear in-progress save since game is done
+    try { localStorage.removeItem(getTodayKey() + '_progress'); } catch(e) {}
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
+  if (win) addToCollection(target.name);
+  recordResult(win, guesses.length);
+  if (win) launchConfetti();
+  updateDailyStreakDisplay();
+
+  showBanner(win, guesses.length);
+
+  const playAgainBtn = currentMode === 'practice'
+    ? `<button class="play-again" style="margin-top:1rem;width:100%;" onclick="initGame()">Nueva ave →</button>`
+    : `<button class="play-again" style="margin-top:1rem;width:100%;" onclick="switchMode('practice')">Jugar en Práctica →</button>`;
+  document.getElementById('bannerFact').insertAdjacentHTML('afterend', playAgainBtn);
+}
+
+// ─── GOOGLE SHEETS LOADER ────────────────────────────────────────────────────
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5z_TEJvGrf8ffqsyWe4_yuYaR06T6n92icQdEarLp9fiM4a5kTJ6pNeRTnVJZ5lf2J5CGtoYWaby7/pub?gid=25586685&single=true&output=csv';
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map(line => {
+    // Handle commas inside quoted fields
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cols[i] || '').replace(/^"|"$/g, ''));
+    return obj;
+  }).filter(r => r['Nombre Común']);
+}
+
+function csvRowToBird(row) {
+  const name = (row['Nombre Común'] || '').toLowerCase();
+  const mig = (row['Migratorio'] || '').toLowerCase();
+  return {
+    name,
+    sci:       row['Nombre Cientifico'] || '',
+    emoji:     row['Emoji'] || '🐦',
+    order:     row['Orden'] || '',
+    family:    row['Familia'] || '',
+    habitat:   (row['Hábitat'] || row['Habitat'] || '').toLowerCase(),
+    diet:      (row['Dieta'] || '').toLowerCase(),
+    size:      (row['Tamaño'] || row['Tamano'] || '').toLowerCase(),
+    migratory: (mig === 'sí' || mig === 'si') ? 'sí' : 'no',
+    continent: row['Continente'] || '',
+    fact:      row['Curiosidad'] || '',
+  };
+}
+
+function buildPhyloFromBirds(birds) {
+  // Rebuild PHYLO dynamically from bird data
+  // We keep the existing PHYLO for proximity logic but update member lists
+  const newPhylo = {};
+  for (const bird of birds) {
+    const orderKey = bird.order.toLowerCase().replace(/ /g,'_');
+    const familyKey = bird.family.toLowerCase().replace(/ /g,'_');
+    if (!newPhylo[orderKey]) newPhylo[orderKey] = {};
+    if (!newPhylo[orderKey][familyKey]) newPhylo[orderKey][familyKey] = [];
+    newPhylo[orderKey][familyKey].push(bird.name.toLowerCase());
+  }
+  // Merge into PHYLO
+  for (const [order, families] of Object.entries(newPhylo)) {
+    if (!PHYLO[order]) PHYLO[order] = {};
+    for (const [fam, members] of Object.entries(families)) {
+      PHYLO[order][fam] = members;
+    }
+  }
+}
+
+async function loadBirdsFromSheets() {
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(CSV_URL)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}`,
+  ];
+  for (const url of proxies) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const text = await res.text();
+      const rows = parseCSV(text);
+      if (rows.length < 10) continue;
+      const newBirds = rows.map(csvRowToBird).map(b => ({ ...b, name: toTitle(b.name) }));
+      BIRDS = newBirds;
+      buildPhyloFromBirds(newBirds);
+      console.log(`✓ ${BIRDS.length} aves cargadas desde Google Sheets`);
+      return;
+    } catch(e) {
+      console.warn('Proxy fallido:', url, e.message);
+    }
+  }
+  console.warn('No se pudo cargar Google Sheets, usando datos locales.');
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+setupMobileInput();
+currentMode = 'practice';
+loadBirdsFromSheets().then(() => {
+  document.getElementById('loadingOverlay').style.display = 'none';
+  initGame();
+});
+</script>
+</body>
+</html>
