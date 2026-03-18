@@ -467,11 +467,12 @@ main {
 <body>
 
 <!-- Loading overlay -->
-<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;">
-  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--accent);">Avi<span style="color:var(--text)">Guess</span></div>
-  <div style="font-family:'Syne Mono',monospace;font-size:0.75rem;color:var(--text3);letter-spacing:0.2em;animation:pulse 1.2s ease infinite;">Cargando aves...</div>
+<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
+  <div style="font-size:4rem;animation:pulse 1.2s ease infinite;">🐦</div>
+  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:3rem;letter-spacing:-0.03em;line-height:1;">Avi<span style="color:var(--accent);">Guess</span></div>
+  <div style="font-family:'Syne Mono',monospace;font-size:0.85rem;color:var(--text3);letter-spacing:0.25em;text-transform:uppercase;animation:pulse 1.2s ease infinite;">Cargando aves...</div>
 </div>
-<style>@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }</style>
+<style>@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }</style>
 
 <header>
   <div style="position:absolute;top:1rem;right:1rem;display:flex;gap:0.5rem;z-index:2;">
