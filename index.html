@@ -96,7 +96,7 @@ header {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
-  margin-top: 1.2rem;
+  margin: 1rem 0;
 }
 .mode-tab {
   font-family: 'Syne', sans-serif;
@@ -197,6 +197,8 @@ main {
   margin: 0 auto;
   padding: 2rem 1.2rem 4rem;
 }
+
+/* pageGuide styles moved below */
 
 .how-to {
   background: var(--surface);
@@ -462,6 +464,390 @@ main {
 @media (max-width: 540px) {
   .guess-attrs { grid-template-columns: repeat(4, 1fr); }
 }
+/* ── NAV PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+.page-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.page-nav-btn {
+  flex: 1;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.6rem 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-right: 1px solid var(--border);
+}
+.page-nav-btn:last-child { border-right: none; }
+.page-nav-btn:hover { color: var(--text2); background: var(--bg3); }
+.page-nav-btn.active { background: var(--green2); color: #fff; }
+.page-nav-btn.active.daily-tab { background: #7a4eab; }
+
+/* ── STATS PAGE ── */
+/* ── ESTADÍSTICAS ── */
+#pageStats {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 0 3rem;
+  box-sizing: border-box;
+}
+@media (max-width: 650px) { #pageStats { padding: 0 1rem; } }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+@media (max-width: 650px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.stat-card {
+  border-radius: 14px;
+  padding: 1.8rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border2);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(106,191,75,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.stat-card:nth-child(2)::before { background: radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.18) 0%, transparent 70%); }
+.stat-card:nth-child(3)::before { background: radial-gradient(ellipse at 50% 0%, rgba(255,100,50,0.18) 0%, transparent 70%); }
+.stat-card:nth-child(4)::before { background: radial-gradient(ellipse at 50% 0%, rgba(180,130,255,0.18) 0%, transparent 70%); }
+
+.stat-card-bg {
+  background: var(--surface);
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 14px;
+}
+.stat-card-content { position: relative; z-index: 1; }
+
+.stat-num {
+  font-family: 'Syne Mono', monospace;
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--green2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-card:nth-child(2) .stat-num {
+  background: linear-gradient(180deg, #f0c040 0%, #c08020 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+.stat-card:nth-child(3) .stat-num {
+  background: linear-gradient(180deg, #ff8844 0%, #cc4422 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+.stat-card:nth-child(4) .stat-num {
+  background: linear-gradient(180deg, #c080ff 0%, #8040cc 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.stat-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text2);
+  margin-top: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.stats-section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+.stats-chart-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+}
+.stats-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+.stats-bar-label {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text3);
+  width: 16px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.stats-bar-track {
+  flex: 1;
+  background: var(--bg3);
+  border-radius: 6px;
+  height: 26px;
+  overflow: hidden;
+}
+.stats-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--green2), var(--accent));
+  transition: width 0.6s ease;
+}
+.stats-bar-count {
+  font-family: 'Syne Mono', monospace;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text2);
+  width: 20px;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+
+/* ── GUIDE PAGE ── */
+/* ── GUÍA DE CAMPO ── */
+#pageGuide {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 0 5rem;
+  box-sizing: border-box;
+}
+@media (max-width: 650px) { #pageGuide { padding: 0 1rem; } }
+.guide-page-header {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+  background: linear-gradient(180deg, rgba(106,191,75,0.08) 0%, transparent 100%);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+.guide-page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M30 5 C20 5 10 15 10 25 C10 35 20 45 30 50 C40 45 50 35 50 25 C50 15 40 5 30 5Z' fill='none' stroke='rgba(106,191,75,0.08)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+  border-radius: 12px;
+  pointer-events: none;
+}
+.guide-page-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text);
+  white-space: nowrap;
+  position: relative;
+}
+.guide-page-sub {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--text3);
+  margin-top: 0.3rem;
+  position: relative;
+}
+.guide-progress-wrap {
+  margin: 1rem auto 0.5rem;
+  max-width: 400px;
+  position: relative;
+}
+.guide-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.guide-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green2), var(--accent));
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+.guide-progress-label {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-top: 0.4rem;
+  text-align: center;
+}
+.guide-progress-label strong { color: var(--accent); }
+
+.guide-search {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 6px;
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  margin-bottom: 1.2rem;
+  transition: border-color 0.2s;
+}
+.guide-search:focus { border-color: var(--green2); }
+.guide-search::placeholder { color: var(--text3); }
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 650px) {
+  .guide-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Tarjeta descubierta */
+.guide-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  animation: fadeUp 0.3s ease both;
+}
+.guide-card.discovered:hover {
+  border-color: var(--green2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(106,191,75,0.12);
+}
+
+/* Círculo con fondo suave para el emoji */
+.card-emoji-circle {
+  width: clamp(60px, 10vw, 90px);
+  height: clamp(60px, 10vw, 90px);
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 2px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  flex-shrink: 0;
+}
+.card-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.82rem, 1.3vw, 1rem);
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
+}
+.card-fact {
+  font-size: clamp(0.68rem, 1vw, 0.8rem);
+  color: var(--text2);
+  line-height: 1.5;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Tarjeta bloqueada */
+.guide-card.locked {
+  background: var(--bg3);
+  border-color: var(--border);
+  opacity: 0.65;
+}
+.card-lock-circle {
+  width: clamp(60px, 10vw, 90px);
+  height: clamp(60px, 10vw, 90px);
+  border-radius: 50%;
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  opacity: 0.5;
+}
+.card-lock-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.78rem, 1.2vw, 0.95rem);
+  color: var(--text3);
+  text-align: center;
+  line-height: 1.3;
+}
+.card-lock-sub {
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.guide-empty {
+  text-align: center;
+  color: var(--text3);
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 3rem 0;
+}
+.guide-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.guide-page-btn {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+.guide-page-btn:hover:not(:disabled) { background: var(--bg3); }
+.guide-page-btn:disabled { opacity: 0.3; cursor: default; }
+
 </style>
 </head>
 <body>
@@ -475,96 +861,99 @@ main {
 <style>@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }</style>
 
 <header>
-  <div style="position:absolute;top:1rem;right:1rem;display:flex;gap:0.5rem;z-index:2;">
-        <button onclick="openGuide()" style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:0.3rem 0.7rem;font-size:1rem;cursor:pointer;color:var(--text2);" title="Guía de Campo">📖</button>
-        <button onclick="openStats()" style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:0.3rem 0.7rem;font-size:1rem;cursor:pointer;color:var(--text2);" title="Estadísticas">📊</button>
-  </div>
   <div class="logo">Avi<span>Guess</span></div>
   <div class="header-meta">
     <span class="meta-pill">Intentos: <strong id="attemptsLeft">10</strong></span>
     <span class="meta-pill" id="dayPill" style="display:none">Ave del día: <strong>#<span id="dayNum">1</span></strong></span>
-    <span class="meta-pill" id="dailyStreakPill" style="display:none">🔥 Racha diaria: <strong id="dailyStreakNum">0</strong></span>
+    <span class="meta-pill" id="dailyStreakPill" style="display:none">🔥 Racha: <strong id="dailyStreakNum">0</strong></span>
   </div>
-  <div class="mode-tabs">
-    <button class="mode-tab daily" id="tabDaily" onclick="switchMode('daily')">📅 Diario</button>
-    <button class="mode-tab active" id="tabPractice" onclick="switchMode('practice')">🔁 Práctica</button>
-  </div>
+  <nav class="page-nav">
+    <button class="page-nav-btn active" id="navJuego" onclick="showPage('juego')">🎮 Juego</button>
+    <button class="page-nav-btn" id="navStats" onclick="showPage('stats')">📊 Estadísticas</button>
+    <button class="page-nav-btn" id="navGuide" onclick="showPage('guide')">📖 Guía de Campo</button>
+  </nav>
 </header>
 
 <main>
-  <!-- Field Guide modal -->
-  <div id="guideModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:flex-start;justify-content:center;overflow-y:auto;padding:2rem 1rem;">
-    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:2rem;max-width:600px;width:100%;position:relative;margin:auto;">
-      <button onclick="closeGuide()" style="position:absolute;top:0.8rem;right:1rem;background:none;border:none;color:var(--text3);font-size:1.4rem;cursor:pointer;">×</button>
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:0.3rem;">📖 Guía de Campo</div>
-      <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;color:var(--text3);margin-bottom:1.5rem;" id="guideCount"></div>
-      <div id="guideGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.8rem;"></div>
-      <div id="guideEmpty" style="text-align:center;color:var(--text3);font-style:italic;font-size:0.9rem;padding:2rem 0;display:none;">Aún no has identificado ningún ave.<br>¡Juega para completar tu guía!</div>
-      <div id="guidePagination" style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.2rem;">
-        <button id="guidePrev" onclick="guideChangePage(-1)" style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:0.4rem 1rem;color:var(--text2);cursor:pointer;font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;">← Ant</button>
-        <span id="guidePageInfo" style="font-family:'Syne Mono',monospace;font-size:0.75rem;color:var(--text3);"></span>
-        <button id="guideNext" onclick="guideChangePage(1)" style="background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:0.4rem 1rem;color:var(--text2);cursor:pointer;font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;">Sig →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Hint box -->
-  <div id="hintBox" style="display:none;background:rgba(212,168,67,0.1);border:1px solid var(--yellow2);border-radius:6px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--yellow);animation:fadeUp 0.4s ease both;">
-    <strong style="font-family:'Syne',sans-serif;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;">🔎 Pista</strong>
-    <span id="hintText" style="display:block;margin-top:0.2rem;"></span>
-  </div>
-
-  <!-- Stats modal -->
-  <div id="statsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;">
-    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:2rem;max-width:400px;width:90%;position:relative;">
-      <button onclick="closeStats()" style="position:absolute;top:0.8rem;right:1rem;background:none;border:none;color:var(--text3);font-size:1.4rem;cursor:pointer;">×</button>
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:1.5rem;text-align:center;">Estadísticas</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;text-align:center;margin-bottom:1.5rem;" id="statsNumbers"></div>
-      <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:0.7rem;">Distribución de intentos</div>
-      <div id="statsChart"></div>
-    </div>
-  </div>
-
   <!-- Win celebration overlay -->
   <div id="winOverlay" style="display:none;position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden;"></div>
 
-  <div class="result-banner" id="resultBanner">
-    <span class="banner-icon" id="bannerIcon">🏆</span>
-    <div class="banner-text">
-      <span id="bannerTitle"></span>
-      <span class="banner-sub" id="bannerSub"></span>
-      <span class="banner-fact" id="bannerFact"></span>
+  <!-- ── PÁGINA: JUEGO ── -->
+  <div class="page active" id="pageJuego">
+    <div class="mode-tabs">
+      <button class="mode-tab daily" id="tabDaily" onclick="switchMode('daily')">📅 Diario</button>
+      <button class="mode-tab active" id="tabPractice" onclick="switchMode('practice')">🔁 Práctica</button>
+    </div>
+
+    <div class="result-banner" id="resultBanner">
+      <span class="banner-icon" id="bannerIcon">🏆</span>
+      <div class="banner-text">
+        <span id="bannerTitle"></span>
+        <span class="banner-sub" id="bannerSub"></span>
+        <span class="banner-fact" id="bannerFact"></span>
+      </div>
+    </div>
+
+    <div class="daily-done" id="dailyDone">
+      <div class="daily-done-title">Ya jugaste el ave de hoy</div>
+      <div class="daily-done-sub" id="dailyDoneSub">Vuelve mañana para un nuevo desafío, o juega en modo Práctica.</div>
+      <div id="countdown" style="font-family:'Syne Mono',monospace;font-size:0.85rem;color:var(--accent);margin-top:0.6rem;"></div>
+    </div>
+
+    <div class="how-to">
+      <strong>Cómo jugar</strong><br>
+      Adivina el ave oculta. Cada intento revela qué tan cerca estás en el <em>árbol filogenético</em>: cuanto mayor el % de proximidad, más relacionadas son las aves. Los atributos en <span style="color:var(--green)">verde</span> coinciden, <span style="color:var(--red)">rojo</span> no coincide.
+    </div>
+
+    <div class="silhouette-wrap">
+      <div class="sil-label">Ave oculta</div>
+      <div class="sil-emoji" id="silEmoji">🐦</div>
+    </div>
+
+    <div class="attempts-dots" id="attemptsDots"></div>
+
+    <div id="hintBox" style="display:none;background:rgba(212,168,67,0.1);border:1px solid var(--yellow2);border-radius:6px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--yellow);animation:fadeUp 0.4s ease both;">
+      <strong style="font-family:'Syne',sans-serif;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;">🔎 Pista</strong>
+      <span id="hintText" style="display:block;margin-top:0.2rem;"></span>
+    </div>
+
+    <div class="search-wrap">
+      <input type="text" class="search-input" id="searchInput" placeholder="Escribe el nombre de un ave…" autocomplete="off">
+      <div class="autocomplete" id="autocomplete"></div>
+    </div>
+    <button class="guess-btn" id="guessBtn" onclick="submitGuess()">Adivinar</button>
+    <div id="mobileKbHint" style="display:none;text-align:center;margin-top:0.5rem;font-size:0.75rem;color:var(--text3);font-family:'Syne Mono',monospace;">toca el campo para escribir</div>
+
+    <div class="guesses-list" id="guessList"></div>
+  </div>
+
+  <!-- ── PÁGINA: ESTADÍSTICAS ── -->
+  <div class="page" id="pageStats">
+    <div class="stats-grid" id="statsNumbers"></div>
+    <div class="stats-section-title">Distribución de intentos</div>
+    <div class="stats-chart-wrap" id="statsChart"></div>
+  </div>
+
+  <!-- ── PÁGINA: GUÍA DE CAMPO ── -->
+  <div class="page" id="pageGuide">
+    <div class="guide-page-header">
+      <div class="guide-page-title">Guía de Campo</div>
+      <div class="guide-page-sub">Tu Colección Personal</div>
+      <div class="guide-progress-wrap">
+        <div class="guide-progress-bar"><div class="guide-progress-fill" id="guideProgressFill" style="width:0%"></div></div>
+        <div class="guide-progress-label" id="guideCount"></div>
+      </div>
+    </div>
+    <input type="text" class="guide-search" id="guideSearch" placeholder="Busca un ave por nombre…" oninput="filterGuide()" autocomplete="off">
+    <div class="guide-grid" id="guideGrid"></div>
+    <div class="guide-empty" id="guideEmpty" style="display:none;">Aún no has identificado ningún ave.<br>¡Juega y completa tu colección!</div>
+    <div class="guide-pagination" id="guidePagination">
+      <button class="guide-page-btn" id="guidePrev" onclick="guideChangePage(-1)">← Anterior</button>
+      <span id="guidePageInfo" style="font-family:'Syne Mono',monospace;font-size:0.75rem;color:var(--text3);"></span>
+      <button class="guide-page-btn" id="guideNext" onclick="guideChangePage(1)">Siguiente →</button>
     </div>
   </div>
 
-  <div class="daily-done" id="dailyDone">
-    <div class="daily-done-title">Ya jugaste el ave de hoy</div>
-    <div class="daily-done-sub" id="dailyDoneSub">Vuelve mañana para un nuevo desafío, o juega en modo Práctica.</div>
-    <div id="countdown" style="font-family:'Syne Mono',monospace;font-size:0.85rem;color:var(--accent);margin-top:0.6rem;"></div>
-  </div>
-
-  <div class="how-to">
-    <strong>Cómo jugar</strong><br>
-    Adivina el ave oculta. Cada intento revela qué tan cerca estás en el <em>árbol filogenético</em>: cuanto mayor el % de proximidad, más relacionadas son las aves. Los atributos en <span style="color:var(--green)">verde</span> coinciden, <span style="color:var(--red)">rojo</span> no coincide.
-  </div>
-
-  <div class="silhouette-wrap">
-    <div class="sil-label">Ave oculta</div>
-    <div class="sil-emoji" id="silEmoji">🐦</div>
-  </div>
-
-  <div class="attempts-dots" id="attemptsDots"></div>
-
-  <div class="search-wrap">
-    <input type="text" class="search-input" id="searchInput" placeholder="Escribe el nombre de un ave…" autocomplete="off">
-    <div class="autocomplete" id="autocomplete"></div>
-  </div>
-  <button class="guess-btn" id="guessBtn" onclick="submitGuess()">Adivinar</button>
-
-  <!-- Mobile keyboard hint -->
-  <div id="mobileKbHint" style="display:none;text-align:center;margin-top:0.5rem;font-size:0.75rem;color:var(--text3);font-family:'Syne Mono',monospace;">toca el campo para escribir</div>
-
-  <div class="guesses-list" id="guessList"></div>
 </main>
 
 <script>
@@ -788,7 +1177,7 @@ function stripAccents(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
-let BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) }));
+let BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) })).sort((a,b) => a.name.localeCompare(b.name));
 
 // ─── PHYLOGENY ────────────────────────────────────────────────────────────────
 function getPhyloInfo(birdName) {
@@ -858,7 +1247,83 @@ function loadDailyResult() {
   try { return JSON.parse(localStorage.getItem(getTodayKey())); } catch(e) { return null; }
 }
 
-// ─── STATS ────────────────────────────────────────────────────────────────────
+// ─── PAGE NAVIGATION ──────────────────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1)).classList.add('active');
+  document.getElementById('nav' + page.charAt(0).toUpperCase() + page.slice(1)).classList.add('active');
+  if (page === 'stats') renderStats();
+  if (page === 'guide') renderGuide();
+}
+
+function renderStats() {
+  const s = loadStats();
+  const pct = s.played ? Math.round(s.won / s.played * 100) : 0;
+  const cards = [
+    { num: s.played,    label: '🗓️ Jugadas' },
+    { num: pct + '%',   label: '🥇 Victorias' },
+    { num: s.streak,    label: '🔥 Racha' },
+    { num: s.maxStreak, label: '👑 Máx. Racha' },
+  ];
+  document.getElementById('statsNumbers').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-card-bg"></div>
+      <div class="stat-card-content">
+        <div class="stat-num">${c.num}</div>
+        <div class="stat-label">${c.label}</div>
+      </div>
+    </div>`).join('');
+
+  const max = Math.max(...Object.values(s.dist), 1);
+  let chartHtml = '';
+  for (let i = 1; i <= MAX_ATTEMPTS; i++) {
+    const count = s.dist[i] || 0;
+    const w = Math.max(count ? 2 : 0, Math.round(count / max * 100));
+    chartHtml += `
+    <div class="stats-bar-row">
+      <div class="stats-bar-label">${i}</div>
+      <div class="stats-bar-track">
+        <div class="stats-bar-fill" style="width:0%" data-w="${w}"></div>
+      </div>
+      <div class="stats-bar-count">${count > 0 ? count : ''}</div>
+    </div>`;
+  }
+  document.getElementById('statsChart').innerHTML = chartHtml;
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.stats-bar-fill').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 50);
+}
+
+function renderGuide() {
+  const col = loadCollection();
+  const discovered = col.length;
+  const total = BIRDS.length;
+  const pct = total ? Math.round(discovered / total * 100) : 0;
+
+  // Rank based on progress
+  const rank = discovered === 0 ? 'Sin empezar' :
+    pct < 20 ? 'Observador Principiante' :
+    pct < 40 ? 'Aficionado al Campo' :
+    pct < 60 ? 'Ornitólogo Amateur' :
+    pct < 80 ? 'Experto Avifauna' :
+    pct < 100 ? 'Maestro Ornitólogo' : '🏆 Colección Completa';
+
+  document.getElementById('guideCount').innerHTML = `Especies Avistadas: <strong>${discovered}</strong> / ${total} (${rank})`;
+  document.getElementById('guideProgressFill').style.width = pct + '%';
+  document.getElementById('guideSearch').value = '';
+
+  guideFoundBirds = [...BIRDS]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(bird => ({ bird, discovered: col.includes(bird.name.toLowerCase()) }));
+
+  guideFilteredBirds = guideFoundBirds;
+  guidePage = 0;
+  renderGuidePage();
+}
 function loadStats() {
   try { return JSON.parse(localStorage.getItem('aviguess_stats')) || { played:0, won:0, streak:0, maxStreak:0, dist:{} }; }
   catch(e) { return { played:0, won:0, streak:0, maxStreak:0, dist:{} }; }
@@ -879,34 +1344,6 @@ function recordResult(win, attempts) {
   saveStats(s);
 }
 
-function openStats() {
-  const s = loadStats();
-  const pct = s.played ? Math.round(s.won / s.played * 100) : 0;
-  document.getElementById('statsNumbers').innerHTML = `
-    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${s.played}</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Jugadas</div></div>
-    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${pct}%</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Victorias</div></div>
-    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${s.streak}</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Racha</div></div>
-    <div><div style="font-family:'Lora',serif;font-size:2rem;font-weight:600;color:var(--accent);letter-spacing:-0.02em">${s.maxStreak}</div><div style="font-size:0.7rem;color:var(--text3);font-family:'Syne Mono',monospace;">Máx. racha</div></div>`;
-  const max = Math.max(...Object.values(s.dist), 1);
-  let chartHtml = '';
-  for (let i = 1; i <= MAX_ATTEMPTS; i++) {
-    const count = s.dist[i] || 0;
-    const w = Math.round(count / max * 100);
-    chartHtml += `<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:4px;">
-      <div style="font-family:'Syne Mono',monospace;font-size:0.7rem;color:var(--text3);width:12px;text-align:right">${i}</div>
-      <div style="flex:1;background:var(--bg3);border-radius:3px;height:18px;overflow:hidden;">
-        <div style="width:${w}%;background:var(--green2);height:100%;border-radius:3px;transition:width 0.5s;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;">
-          ${count > 0 ? `<span style="font-size:0.65rem;color:#fff;font-family:'Syne Mono',monospace">${count}</span>` : ''}
-        </div>
-      </div>
-    </div>`;
-  }
-  document.getElementById('statsChart').innerHTML = chartHtml;
-  const modal = document.getElementById('statsModal');
-  modal.style.display = 'flex';
-}
-function closeStats() { document.getElementById('statsModal').style.display = 'none'; }
-document.getElementById('statsModal').addEventListener('click', e => { if (e.target === document.getElementById('statsModal')) closeStats(); });
 
 // ─── COUNTDOWN ────────────────────────────────────────────────────────────────
 function updateCountdown() {
@@ -1104,15 +1541,24 @@ function loadDailyProgress() {
 // ─── HINT AT ATTEMPT 5 ────────────────────────────────────────────────────────
 function showHintIfNeeded() {
   if (guesses.length !== 5 || gameOver) return;
-  const hints = [
-    `Su orden es: ${target.order}`,
-    `Su hábitat es: ${target.habitat}`,
-    `Su dieta es: ${target.diet}`,
-    `Su tamaño es: ${target.size}`,
-    `Su continente es: ${target.continent}`,
+  // Find attributes that haven't been matched (green) yet
+  const allHints = [
+    { label: 'Su orden es',     val: target.order,     key: 'order' },
+    { label: 'Su hábitat es',   val: target.habitat,   key: 'habitat' },
+    { label: 'Su dieta es',     val: target.diet,       key: 'diet' },
+    { label: 'Su tamaño es',    val: target.size,       key: 'size' },
+    { label: 'Su continente es',val: target.continent, key: 'continent' },
+    { label: 'Su familia es',   val: target.family,    key: 'family' },
   ];
-  const hint = hints[Math.floor(Math.random() * hints.length)];
-  document.getElementById('hintText').textContent = hint;
+  // Filter out attributes already discovered (any guess matched green)
+  const known = new Set(
+    ATTRS.filter(a => guesses.some(g => compareAttr(g[a.key], target[a.key], a.key) === 'match'))
+         .map(a => a.key)
+  );
+  const unknown = allHints.filter(h => !known.has(h.key));
+  if (!unknown.length) return; // everything already known, no hint needed
+  const hint = unknown[Math.floor(Math.random() * unknown.length)];
+  document.getElementById('hintText').textContent = `${hint.label}: ${hint.val}`;
   document.getElementById('hintBox').style.display = 'block';
 }
 
@@ -1158,57 +1604,62 @@ function addToCollection(birdName) {
 }
 const GUIDE_PER_PAGE = 10;
 let guidePage = 0;
-let guideFoundBirds = [];
+let guideFoundBirds = []; // all birds (sorted), with discovered flag
+let guideFilteredBirds = []; // after search filter
 
 function renderGuidePage() {
-  const start = guidePage * GUIDE_PER_PAGE;
-  const page = guideFoundBirds.slice(start, start + GUIDE_PER_PAGE);
-  const totalPages = Math.ceil(guideFoundBirds.length / GUIDE_PER_PAGE);
+  const mobile = window.innerWidth <= 650;
+  const slice = mobile
+    ? guideFilteredBirds
+    : guideFilteredBirds.slice(guidePage * GUIDE_PER_PAGE, (guidePage + 1) * GUIDE_PER_PAGE);
+  const totalPages = Math.ceil(guideFilteredBirds.length / GUIDE_PER_PAGE);
 
-  document.getElementById('guideGrid').innerHTML = page.map(b => `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.8rem;display:flex;gap:0.7rem;align-items:flex-start;">
-      <span style="font-size:1.8rem;flex-shrink:0;">${b.emoji}</span>
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--text)">${b.name}</div>
-        <div style="font-size:0.72rem;font-style:italic;color:var(--text3);margin-bottom:0.3rem;">${b.sci}</div>
-        <div style="font-size:0.75rem;color:var(--text2);line-height:1.4;">${b.fact}</div>
-      </div>
-    </div>`).join('');
+  if (slice.length === 0) {
+    document.getElementById('guideGrid').innerHTML = '';
+    document.getElementById('guideEmpty').style.display = 'block';
+    document.getElementById('guideEmpty').textContent = 'No hay aves que coincidan.';
+    document.getElementById('guidePagination').style.display = 'none';
+    return;
+  }
+  document.getElementById('guideEmpty').style.display = 'none';
+
+  document.getElementById('guideGrid').innerHTML = slice.map(({ bird, discovered }) =>
+    discovered ? `
+    <div class="guide-card discovered">
+      <div class="card-emoji-circle">${bird.emoji}</div>
+      <div class="card-name">${bird.name}</div>
+      <div class="card-fact">${bird.fact}</div>
+    </div>` : `
+    <div class="guide-card locked">
+      <div class="card-lock-circle">🔒</div>
+      <div class="card-lock-name">${bird.name}</div>
+      <div class="card-lock-sub">???</div>
+    </div>`
+  ).join('');
 
   document.getElementById('guidePageInfo').textContent = `${guidePage + 1} / ${totalPages}`;
   document.getElementById('guidePrev').disabled = guidePage === 0;
   document.getElementById('guidePrev').style.opacity = guidePage === 0 ? '0.3' : '1';
   document.getElementById('guideNext').disabled = guidePage >= totalPages - 1;
   document.getElementById('guideNext').style.opacity = guidePage >= totalPages - 1 ? '0.3' : '1';
-  document.getElementById('guidePagination').style.display = totalPages <= 1 ? 'none' : 'flex';
+  document.getElementById('guidePagination').style.display = (mobile || totalPages <= 1) ? 'none' : 'flex';
+}
+
+function filterGuide() {
+  const q = stripAccents(document.getElementById('guideSearch').value.trim());
+  guideFilteredBirds = q
+    ? guideFoundBirds.filter(({ bird }) => stripAccents(bird.name).includes(q) || stripAccents(bird.sci).includes(q))
+    : guideFoundBirds;
+  guidePage = 0;
+  renderGuidePage();
 }
 
 function guideChangePage(dir) {
-  const totalPages = Math.ceil(guideFoundBirds.length / GUIDE_PER_PAGE);
+  const totalPages = Math.ceil(guideFilteredBirds.length / GUIDE_PER_PAGE);
   guidePage = Math.max(0, Math.min(totalPages - 1, guidePage + dir));
   renderGuidePage();
 }
 
-function openGuide() {
-  const col = loadCollection();
-  const total = BIRDS.length;
-  document.getElementById('guideCount').textContent = `${col.length} de ${total} aves identificadas`;
-  guideFoundBirds = BIRDS.filter(b => col.includes(b.name.toLowerCase()))
-    .sort((a, b) => a.name.localeCompare(b.name));
-  guidePage = 0;
-
-  if (guideFoundBirds.length === 0) {
-    document.getElementById('guideEmpty').style.display = 'block';
-    document.getElementById('guideGrid').innerHTML = '';
-    document.getElementById('guidePagination').style.display = 'none';
-  } else {
-    document.getElementById('guideEmpty').style.display = 'none';
-    renderGuidePage();
-  }
-  document.getElementById('guideModal').style.display = 'flex';
-}
-function closeGuide() { document.getElementById('guideModal').style.display = 'none'; }
-document.getElementById('guideModal').addEventListener('click', e => { if (e.target === document.getElementById('guideModal')) closeGuide(); });
 
 
 
@@ -1393,7 +1844,7 @@ async function loadBirdsFromSheets() {
       const rows = parseCSV(text);
       if (rows.length < 10) continue;
       const newBirds = rows.map(csvRowToBird).map(b => ({ ...b, name: toTitle(b.name) }));
-      BIRDS = newBirds;
+      BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
       buildPhyloFromBirds(newBirds);
       console.log(`✓ ${BIRDS.length} aves cargadas desde Google Sheets`);
       return;
