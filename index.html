@@ -472,20 +472,23 @@ main {
   display: flex;
   justify-content: center;
   gap: 0;
-  margin-top: 1.2rem;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
+  max-width: 500px;
 }
 .page-nav-btn {
   flex: 1;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 0.6rem 0.5rem;
+  padding: 0.45rem 0.5rem;
   border: none;
   background: transparent;
   color: var(--text3);
@@ -497,6 +500,12 @@ main {
 .page-nav-btn:hover { color: var(--text2); background: var(--bg3); }
 .page-nav-btn.active { background: var(--green2); color: #fff; }
 .page-nav-btn.active.daily-tab { background: #7a4eab; }
+.page-nav-btn .nav-text { display: inline; }
+@media (max-width: 650px) {
+  .page-nav { max-width: 160px; }
+  .page-nav-btn { font-size: 1.1rem; padding: 0.5rem; }
+  .page-nav-btn .nav-text { display: none; }
+}
 
 /* ── STATS PAGE ── */
 /* ── ESTADÍSTICAS ── */
@@ -784,6 +793,14 @@ main {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+@media (max-width: 650px) {
+  .card-fact {
+    -webkit-line-clamp: unset;
+    display: block;
+    overflow: visible;
+    font-size: 0.78rem;
+  }
+}
 
 /* Tarjeta bloqueada */
 .guide-card.locked {
@@ -868,9 +885,9 @@ main {
     <span class="meta-pill" id="dailyStreakPill" style="display:none">🔥 Racha: <strong id="dailyStreakNum">0</strong></span>
   </div>
   <nav class="page-nav">
-    <button class="page-nav-btn active" id="navJuego" onclick="showPage('juego')">🎮 Juego</button>
-    <button class="page-nav-btn" id="navStats" onclick="showPage('stats')">📊 Estadísticas</button>
-    <button class="page-nav-btn" id="navGuide" onclick="showPage('guide')">📖 Guía de Campo</button>
+    <button class="page-nav-btn active" id="navJuego" onclick="showPage('juego')">🎮 <span class="nav-text">Juego</span></button>
+    <button class="page-nav-btn" id="navStats" onclick="showPage('stats')">📊 <span class="nav-text">Estadísticas</span></button>
+    <button class="page-nav-btn" id="navGuide" onclick="showPage('guide')">📖 <span class="nav-text">Guía de Campo</span></button>
   </nav>
 </header>
 
