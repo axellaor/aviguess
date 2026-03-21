@@ -683,6 +683,13 @@ main {
   white-space: nowrap;
   position: relative;
 }
+@media (max-width: 650px) {
+  .guide-page-title {
+    white-space: normal;
+    font-size: clamp(2rem, 10vw, 2.8rem);
+    line-height: 1.1;
+  }
+}
 .guide-page-sub {
   font-family: 'Lora', serif;
   font-style: italic;
