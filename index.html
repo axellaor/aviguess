@@ -1817,7 +1817,7 @@ function endGame(win) {
 
   if (win) {
     const isNew = addToCollection(target.name);
-    if (isNew) setTimeout(() => showUnlockToast(target), 1200);
+    if (isNew) { const unlockedBird = target; setTimeout(() => showUnlockToast(unlockedBird), 1200); }
   }
   recordResult(win, guesses.length);
   if (win) { soundWin(); launchConfetti(); } else { soundLose(); }
