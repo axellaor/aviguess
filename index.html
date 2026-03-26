@@ -294,8 +294,8 @@ main {
   transition: background 0.15s;
   border-bottom: 1px solid var(--border);
 }
-.ac-item:last-child { border-bottom: none; }
-.ac-item:hover { background: var(--surface); }
+/* Autocomplete keyboard highlight */
+.ac-item.highlighted { background: var(--bg3); border-left: 2px solid var(--green2); }
 .ac-emoji { font-size: 1.4rem; flex-shrink: 0; }
 .ac-name { font-size: 0.95rem; color: var(--text); }
 .ac-sci  { font-size: 0.75rem; font-style: italic; color: var(--text3); }
@@ -1536,14 +1536,54 @@ function renderDots() {
 
 // ─── AUTOCOMPLETE ─────────────────────────────────────────────────────────────
 let selectedBird = null;
+let acHighlightIndex = -1;
 const input = document.getElementById('searchInput');
 const ac    = document.getElementById('autocomplete');
 
+function acItems() { return ac.querySelectorAll('.ac-item'); }
+
+function acHighlight(index) {
+  const items = acItems();
+  if (!items.length) return;
+  acHighlightIndex = Math.max(-1, Math.min(items.length - 1, index));
+  items.forEach((el, i) => el.classList.toggle('highlighted', i === acHighlightIndex));
+  if (acHighlightIndex >= 0) {
+    items[acHighlightIndex].scrollIntoView({ block: 'nearest' });
+    // Preview name in input but don't commit yet
+    input.value = items[acHighlightIndex].querySelector('.ac-name').textContent;
+  }
+}
+
 input.addEventListener('keydown', e => {
-  if (e.key === 'Enter') { ac.classList.remove('show'); submitGuess(); }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (!ac.classList.contains('show')) return;
+    acHighlight(acHighlightIndex + 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (!ac.classList.contains('show')) return;
+    acHighlight(acHighlightIndex - 1);
+  } else if (e.key === 'Enter') {
+    if (acHighlightIndex >= 0 && ac.classList.contains('show')) {
+      const highlighted = acItems()[acHighlightIndex];
+      if (highlighted) {
+        const name = highlighted.querySelector('.ac-name').textContent;
+        ac.classList.remove('show');
+        acHighlightIndex = -1;
+        selectBird(name);
+        return;
+      }
+    }
+    ac.classList.remove('show');
+    submitGuess();
+  } else if (e.key === 'Escape') {
+    ac.classList.remove('show');
+    acHighlightIndex = -1;
+  }
 });
 
 input.addEventListener('input', () => {
+  acHighlightIndex = -1;
   const q = stripAccents(input.value.trim());
   selectedBird = null;
   if (!q) { ac.classList.remove('show'); return; }
