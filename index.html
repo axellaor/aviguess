@@ -930,6 +930,7 @@ main {
     <span class="meta-pill">Intentos: <strong id="attemptsLeft">10</strong></span>
     <span class="meta-pill" id="dayPill" style="display:none">Ave del día: <strong>#<span id="dayNum">1</span></strong></span>
     <span class="meta-pill" id="dailyStreakPill" style="display:none">🔥 Racha: <strong id="dailyStreakNum">0</strong></span>
+    <span class="meta-pill" id="practiceStreakPill" style="display:none">🎯 Racha práctica: <strong id="practiceStreakNum">0</strong></span>
   </div>
   <nav class="page-nav">
     <button class="page-nav-btn active" id="navJuego" onclick="showPage('juego')">🎮 <span class="nav-text">Juego</span></button>
@@ -1463,6 +1464,8 @@ function switchMode(mode) {
   document.getElementById('tabDaily').classList.toggle('active', mode === 'daily');
   document.getElementById('tabPractice').classList.toggle('active', mode === 'practice');
   document.getElementById('dayPill').style.display = mode === 'daily' ? '' : 'none';
+  updatePracticeStreakDisplay();
+  updateDailyStreakDisplay();
   initGame();
 }
 
@@ -1518,6 +1521,7 @@ function initGame() {
   } else {
     document.getElementById('dailyStreakPill').style.display = 'none';
     target = BIRDS[Math.floor(Math.random() * BIRDS.length)];
+    updatePracticeStreakDisplay();
   }
 }
 
@@ -1867,15 +1871,96 @@ function endGame(win) {
     if (isNew) showUnlockToast({ ...target });
   }
   recordResult(win, guesses.length);
+
+  if (currentMode === 'practice') {
+    const streak = updatePracticeStreak(win);
+    updatePracticeStreakDisplay();
+  }
+
   if (win) { soundWin(); launchConfetti(); } else { soundLose(); }
   updateDailyStreakDisplay();
 
   showBanner(win, guesses.length);
 
+  const practiceStreakInfo = (currentMode === 'practice' && win && loadPracticeStreak() > 1)
+    ? `<div style="font-family:'Syne Mono',monospace;font-size:0.72rem;color:var(--accent);margin-top:0.5rem;">🎯 Racha: ${loadPracticeStreak()} consecutivas</div>` : '';
+
+  const shareBtn = currentMode === 'daily'
+    ? `<button id="shareBtn" class="play-again" style="margin-top:0.5rem;width:100%;background:transparent;border:1.5px solid var(--border2);color:var(--text2);" onclick="shareResult(${win}, ${guesses.length})">📤 Compartir</button>`
+    : '';
+
   const playAgainBtn = currentMode === 'practice'
     ? `<button class="play-again" style="margin-top:1rem;width:100%;" onclick="initGame()">Nueva ave →</button>`
-    : `<button class="play-again" style="margin-top:1rem;width:100%;" onclick="switchMode('practice')">Jugar en Práctica →</button>`;
-  document.getElementById('bannerFact').insertAdjacentHTML('afterend', playAgainBtn);
+    : ``;
+
+  document.getElementById('bannerFact').insertAdjacentHTML('afterend', practiceStreakInfo + shareBtn + playAgainBtn);
+}
+
+// ─── PRACTICE STREAK ──────────────────────────────────────────────────────────
+function loadPracticeStreak() {
+  try { return JSON.parse(localStorage.getItem('aviguess_practice_streak')) || 0; }
+  catch(e) { return 0; }
+}
+function savePracticeStreak(n) {
+  try { localStorage.setItem('aviguess_practice_streak', JSON.stringify(n)); } catch(e) {}
+}
+function updatePracticeStreak(win) {
+  let streak = loadPracticeStreak();
+  streak = win ? streak + 1 : 0;
+  savePracticeStreak(streak);
+  return streak;
+}
+function updatePracticeStreakDisplay() {
+  const pill = document.getElementById('practiceStreakPill');
+  if (currentMode !== 'practice') { pill.style.display = 'none'; return; }
+  const streak = loadPracticeStreak();
+  document.getElementById('practiceStreakNum').textContent = streak;
+  pill.style.display = streak > 0 ? '' : 'none';
+}
+
+// ─── SHARE RESULT ─────────────────────────────────────────────────────────────
+function buildShareText(win, attempts) {
+  const day = getDayNumber();
+  const result = win ? `${attempts}/${MAX_ATTEMPTS}` : `X/${MAX_ATTEMPTS}`;
+
+  // One row per guess, one emoji per attribute
+  const rows = guesses.map(g => {
+    return ATTRS.map(a => {
+      const cmp = compareAttr(g[a.key], target[a.key], a.key);
+      if (cmp === 'match') return '🟩';
+      if (cmp === 'partial') return '🟨';
+      return '🟥';
+    }).join('');
+  }).join('\n');
+
+  return `🐦 AviGuess #${day} ${result}\n${rows}\n\naxellaor.github.io/aviguess`;
+}
+
+function shareResult(win, attempts) {
+  const text = buildShareText(win, attempts);
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => copyToClipboard(text));
+  } else {
+    copyToClipboard(text);
+  }
+}
+
+function copyToClipboard(text) {
+  const btn = document.getElementById('shareBtn');
+  const original = '📤 Compartir';
+  const setLabel = t => { if (btn) btn.textContent = t; };
+  navigator.clipboard.writeText(text).then(() => {
+    setLabel('✓ Copiado');
+    setTimeout(() => setLabel(original), 2000);
+  }).catch(() => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      setLabel('✓ Copiado');
+      setTimeout(() => setLabel(original), 2000);
+    } catch(e) { setLabel('Error al copiar'); }
+  });
 }
 
 // ─── GOOGLE SHEETS LOADER ────────────────────────────────────────────────────
