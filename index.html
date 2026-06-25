@@ -1879,34 +1879,14 @@ function endGame(win) {
 }
 
 // ─── GOOGLE SHEETS LOADER ────────────────────────────────────────────────────
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRalb53BF5DU55lQxjv8dCf6hbmW7Ayglyzpoy4V94c70H3IMp5J0Jessi9eT_a31AndPZDeZJ0KufT/pub?gid=0&single=true&output=csv';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlkAEQH7lGKXFBXb_l7vhKaHdIGEe39nhu-5dRzjt_PqAE4AK3Pjvp0t_nLCJsZPcu/exec';
 
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-  return lines.slice(1).map(line => {
-    // Handle commas inside quoted fields
-    const cols = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { inQ = !inQ; }
-      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-      else { cur += ch; }
-    }
-    cols.push(cur.trim());
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = (cols[i] || '').replace(/^"|"$/g, ''));
-    return obj;
-  }).filter(r => r['Nombre Común']);
-}
-
-function csvRowToBird(row) {
-  const name = (row['Nombre Común'] || '').toLowerCase();
+function jsonRowToBird(row) {
+  const name = (row['Nombre Común'] || row['Nombre Comun'] || '').toLowerCase();
   const mig = (row['Migratorio'] || '').toLowerCase();
   return {
     name,
-    sci:       row['Nombre Cientifico'] || '',
+    sci:       row['Nombre Cientifico'] || row['Nombre Científico'] || '',
     emoji:     row['Emoji'] || '🐦',
     order:     row['Orden'] || '',
     family:    row['Familia'] || '',
@@ -1919,52 +1899,20 @@ function csvRowToBird(row) {
   };
 }
 
-function buildPhyloFromBirds(birds) {
-  // Rebuild PHYLO dynamically from bird data
-  // We keep the existing PHYLO for proximity logic but update member lists
-  const newPhylo = {};
-  for (const bird of birds) {
-    const orderKey = bird.order.toLowerCase().replace(/ /g,'_');
-    const familyKey = bird.family.toLowerCase().replace(/ /g,'_');
-    if (!newPhylo[orderKey]) newPhylo[orderKey] = {};
-    if (!newPhylo[orderKey][familyKey]) newPhylo[orderKey][familyKey] = [];
-    newPhylo[orderKey][familyKey].push(bird.name.toLowerCase());
-  }
-  // Merge into PHYLO
-  for (const [order, families] of Object.entries(newPhylo)) {
-    if (!PHYLO[order]) PHYLO[order] = {};
-    for (const [fam, members] of Object.entries(families)) {
-      PHYLO[order][fam] = members;
-    }
-  }
-}
-
 async function loadBirdsFromSheets() {
-  const proxies = [
-    `https://corsproxy.io/?${encodeURIComponent(CSV_URL)}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(CSV_URL)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(CSV_URL)}`,
-  ];
-  for (const url of proxies) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) continue;
-      const text = await res.text();
-      if (!text || text.trim().startsWith('<') || text.trim().startsWith('{')) continue;
-      const rows = parseCSV(text);
-      if (rows.length < 5) continue;
-      const newBirds = rows.map(csvRowToBird).map(b => ({ ...b, name: toTitle(b.name) })).filter(b => b.name.length > 1);
-      if (newBirds.length < 5) continue;
-      BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
-      buildPhyloFromBirds(newBirds);
-      console.log(`✓ ${BIRDS.length} aves cargadas desde Google Sheets`);
-      return;
-    } catch(e) {
-      console.warn('Proxy fallido:', e.message);
-    }
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length < 5) throw new Error('Datos insuficientes');
+    const newBirds = rows.map(jsonRowToBird).map(b => ({ ...b, name: toTitle(b.name) })).filter(b => b.name.length > 1);
+    if (newBirds.length < 5) throw new Error('Pocas aves parseadas');
+    BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
+    buildPhyloFromBirds(newBirds);
+    console.log(`✓ ${BIRDS.length} aves cargadas desde Google Apps Script`);
+  } catch(e) {
+    console.warn('Apps Script fallido, usando datos locales:', e.message);
   }
-  console.warn('Usando datos locales como respaldo.');
 }
 
 // ─── SOUND SYSTEM ─────────────────────────────────────────────────────────────
