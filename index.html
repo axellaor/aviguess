@@ -1943,21 +1943,25 @@ async function loadBirdsFromSheets() {
   const proxies = [
     `https://corsproxy.io/?${encodeURIComponent(CSV_URL)}`,
     `https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(CSV_URL)}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(CSV_URL)}`,
   ];
   for (const url of proxies) {
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) continue;
       const text = await res.text();
+      if (!text || text.trim().startsWith('<') || text.trim().startsWith('{')) continue;
       const rows = parseCSV(text);
-      if (rows.length < 10) continue;
-      const newBirds = rows.map(csvRowToBird).map(b => ({ ...b, name: toTitle(b.name) }));
+      if (rows.length < 5) continue;
+      const newBirds = rows.map(csvRowToBird).map(b => ({ ...b, name: toTitle(b.name) })).filter(b => b.name.length > 1);
+      if (newBirds.length < 5) continue;
       BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
       buildPhyloFromBirds(newBirds);
       console.log(`✓ ${BIRDS.length} aves cargadas desde Google Sheets`);
       return;
     } catch(e) {
-      console.warn('Proxy fallido:', url, e.message);
+      console.warn('Proxy fallido:', e.message);
     }
   }
   console.warn('Usando datos locales como respaldo.');
