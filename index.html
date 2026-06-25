@@ -930,7 +930,6 @@ main {
     <span class="meta-pill">Intentos: <strong id="attemptsLeft">10</strong></span>
     <span class="meta-pill" id="dayPill" style="display:none">Ave del día: <strong>#<span id="dayNum">1</span></strong></span>
     <span class="meta-pill" id="dailyStreakPill" style="display:none">🔥 Racha: <strong id="dailyStreakNum">0</strong></span>
-    <span class="meta-pill" id="practiceStreakPill" style="display:none">🎯 Racha práctica: <strong id="practiceStreakNum">0</strong></span>
   </div>
   <nav class="page-nav">
     <button class="page-nav-btn active" id="navJuego" onclick="showPage('juego')">🎮 <span class="nav-text">Juego</span></button>
@@ -1130,118 +1129,7 @@ const PHYLO = {
   },
 };
 
-const BIRDS_RAW = [
-  { name: 'águila real', sci: 'Aquila chrysaetos', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'montaña', diet: 'carnívoro', size: 'grande', migratory: 'no', continent: 'Global', fact: 'Puede divisar una liebre desde 3 km de distancia.' },
-  { name: 'halcón peregrino', sci: 'Falco peregrinus', emoji: '🦅', order: 'Falconiformes', family: 'Falconidae', habitat: 'acantilados', diet: 'carnívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Es el animal más rápido del mundo, superando los 300 km/h en picado.' },
-  { name: 'búho real', sci: 'Bubo bubo', emoji: '🦉', order: 'Strigiformes', family: 'Strigidae', habitat: 'roquedos', diet: 'carnívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Es la rapaz nocturna más grande de Europa, capaz de girar la cabeza 270° y cazar en silencio absoluto gracias a plumas especializadas.' },
-  { name: 'quebrantahuesos', sci: 'Gypaetus Barbatus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'montaña', diet: 'necrófago', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Su alimentacion se basa principalmente en huesos pero tambien come tendones, pellejos y otras partes de los cadáveres.' },
-  { name: 'milano real', sci: 'Milvus milvus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Europa', fact: 'Es una rapaz inconfundible por su cola en forma de V y su plumaje rojizo, siendo un planeador excepcional que casi no gasta energía al volar.' },
-  { name: 'cernícalo vulgar', sci: 'Falco tinnunculus', emoji: '🦅', order: 'Falconiformes', family: 'Falconidae', habitat: 'campo abierto', diet: 'carnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es capaz de quedarse quieto en el aire batiendo las alas mientras busca presas.' },
-  { name: 'azor común', sci: 'Accipiter gentilis', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'bosque', diet: 'carnívoro', size: 'mediano', migratory: 'no', continent: 'Holártico', fact: 'Sus alas cortas y redondeadas le permiten perseguir presas entre la vegetación densa.' },
-  { name: 'lechuza común', sci: 'Tyto alba', emoji: '🦉', order: 'Strigiformes', family: 'Tytonidae', habitat: 'campo abierto', diet: 'carnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Su oído es tan preciso que puede cazar ratones en oscuridad total guiándose solo por el sonido.' },
-  { name: 'buitre leonado', sci: 'Gyps fulvus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'roquedos', diet: 'necrófago', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Se orinan en las patas para refrescarse y desinfectarse tras comer carroña.' },
-  { name: 'águila pescadora', sci: 'Pandion haliaetus', emoji: '🦅', order: 'Accipitriformes', family: 'Pandionidae', habitat: 'costas', diet: 'piscívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Es la única rapaz que se sumerge completamente en el agua para capturar a sus presas.' },
-  { name: 'pingüino emperador', sci: 'Aptenodytes forsteri', emoji: '🐧', order: 'Sphenisciformes', family: 'Spheniscidae', habitat: 'costas', diet: 'piscívoro', size: 'grande', migratory: 'sí', continent: 'Antártida', fact: 'Es el único animal que se reproduce durante el crudo invierno antártico.' },
-  { name: 'frailecillo atlántico', sci: 'Fratercula arctica', emoji: '🐧', order: 'Charadriiformes', family: 'Alcidae', habitat: 'acantilados', diet: 'piscívoro', size: 'pequeño', migratory: 'sí', continent: 'Europa', fact: 'Su pico se vuelve de colores brillantes solo durante la época de cría.' },
-  { name: 'gaviota reidora', sci: 'Chroicocephalus ridibundus', emoji: '🐦', order: 'Charadriiformes', family: 'Laridae', habitat: 'costas', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'En verano su cabeza se vuelve oscura, pareciendo que lleva una capucha.' },
-  { name: 'pelícano común', sci: 'Pelecanus onocrotalus', emoji: '🐦', order: 'Pelecaniformes', family: 'Pelecanidae', habitat: 'humedales', diet: 'piscívoro', size: 'grande', migratory: 'sí', continent: 'África', fact: 'Su bolsa gular puede almacenar hasta 13 litros de agua y peces.' },
-  { name: 'cormorán grande', sci: 'Phalacrocorax carbo', emoji: '🐦', order: 'Suliformes', family: 'Phalacrocoracidae', habitat: 'costas', diet: 'piscívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Debe secar sus alas extendidas al sol porque sus plumas no son impermeables.' },
-  { name: 'alcatraz atlántico', sci: 'Morus bassanus', emoji: '🐦', order: 'Suliformes', family: 'Sulidae', habitat: 'acantilados', diet: 'piscívoro', size: 'grande', migratory: 'sí', continent: 'Europa', fact: 'Se lanza al mar en picado desde 30 metros de altura a gran velocidad.' },
-  { name: 'gaviota patiamarilla', sci: 'Larus michahellis', emoji: '🐦', order: 'Charadriiformes', family: 'Laridae', habitat: 'costas', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Europa', fact: 'Es una especie muy oportunista que se ha adaptado a comer en basureros.' },
-  { name: 'charrán ártico', sci: 'Sterna paradisaea', emoji: '🐦', order: 'Charadriiformes', family: 'Laridae', habitat: 'costas', diet: 'piscívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Realiza la migración más larga del mundo, de polo a polo cada año.' },
-  { name: 'somormujo lavanco', sci: 'Podiceps cristatus', emoji: '🦆', order: 'Podicipediformes', family: 'Podicipedidae', habitat: 'humedales', diet: 'piscívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Realiza una danza nupcial sobre el agua muy compleja y elegante.' },
-  { name: 'alimoche común', sci: 'Neophron percnopterus', emoji: '🦅', order: 'Accipitriformes', family: 'Accipitridae', habitat: 'montaña', diet: 'necrófago', size: 'mediano', migratory: 'sí', continent: 'Eurasia/África', fact: 'Es uno de los pocos animales que usa herramientas: lanza piedras para romper huevos de avestruz.' },
-  { name: 'ánade azulón', sci: 'Anas platyrhynchos', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Es el ancestro de casi todos los patos domésticos actuales.' },
-  { name: 'cisne vulgar', sci: 'Cygnus olor', emoji: '🦢', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'A pesar de su nombre, es una de las aves más pesadas que pueden volar.' },
-  { name: 'porrón moñudo', sci: 'Aythya fuligula', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es un pato buceador que puede bajar hasta varios metros para buscar comida.' },
-  { name: 'cerceta común', sci: 'Anas crecca', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es el pato más pequeño de Europa y vuela a gran velocidad en bandadas.' },
-  { name: 'ganso cenizo', sci: 'Anser anser', emoji: '🦢', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'grande', migratory: 'sí', continent: 'Eurasia', fact: 'Sus formaciones en \"V\" al volar les permiten ahorrar energía en viajes largos.' },
-  { name: 'flamenco rosa', sci: 'Phoenicopterus roseus', emoji: '🦩', order: 'Phoenicopteriformes', family: 'Phoenicopteridae', habitat: 'humedales', diet: 'omnívoro', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Su color rosa proviene de los pigmentos de los pequeños crustáceos que come.' },
-  { name: 'cigüeña blanca', sci: 'Ciconia ciconia', emoji: '🐦', order: 'Ciconiiformes', family: 'Ciconiidae', habitat: 'urbano', diet: 'omnívoro', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Son famosas por volver cada año exactamente al mismo nido en lo alto de torres.' },
-  { name: 'garza real', sci: 'Ardea cinerea', emoji: '🐦', order: 'Pelecaniformes', family: 'Ardeidae', habitat: 'humedales', diet: 'piscívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Puede permanecer inmóvil como una estatua durante horas esperando a un pez.' },
-  { name: 'espátula común', sci: 'Platalea leucorodia', emoji: '🐦', order: 'Pelecaniformes', family: 'Threskiornithidae', habitat: 'humedales', diet: 'invertebrados', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Su pico tiene una forma única que mueve de lado a lado para filtrar alimento.' },
-  { name: 'martín pescador común', sci: 'Alcedo atthis', emoji: '🐦', order: 'Coraciiformes', family: 'Alcedinidae', habitat: 'ribera', diet: 'piscívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Su plumaje azul brillante es estructural, no tiene pigmento azul en las plumas.' },
-  { name: 'guacamayo rojo', sci: 'Ara macao', emoji: '🦜', order: 'Psittaciformes', family: 'Psittacidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'América', fact: 'Sus fuertes picos pueden romper cáscaras de nueces extremadamente duras.' },
-  { name: 'cacatúa blanca', sci: 'Cacatua alba', emoji: '🦜', order: 'Psittaciformes', family: 'Cacatuidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'Oceanía', fact: 'Utiliza su cresta de plumas para comunicarse y expresar su estado de ánimo.' },
-  { name: 'agapornis de namibia', sci: 'Agapornis roseicollis', emoji: '🦜', order: 'Psittaciformes', family: 'Psittaculidae', habitat: 'matorral', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'África', fact: 'Se les conoce como \"inseparables\" porque las parejas pasan mucho tiempo juntas.' },
-  { name: 'periquito común', sci: 'Melopsittacus undulatus', emoji: '🦜', order: 'Psittaciformes', family: 'Psittaculidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Oceanía', fact: 'En estado salvaje son siempre verdes; los demás colores son por su cría doméstica.' },
-  { name: 'tucán toco', sci: 'Ramphastos toco', emoji: '🦜', order: 'Piciformes', family: 'Ramphastidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'América', fact: 'Su enorme pico le sirve para regular la temperatura corporal irradiando calor.' },
-  { name: 'cálao rinoceronte', sci: 'Buceros rhinoceros', emoji: '🦜', order: 'Bucerotiformes', family: 'Bucerotidae', habitat: 'bosque', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Asia', fact: 'La hembra se sella dentro del nido en un tronco, dejando solo una rendija para comer.' },
-  { name: 'cacatúa ninfa', sci: 'Nymphicus hollandicus', emoji: '🦜', order: 'Psittaciformes', family: 'Cacatuidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Oceanía', fact: 'Es una de las aves domésticas más inteligentes y capaces de imitar sonidos.' },
-  { name: 'ave del paraíso esmeralda', sci: 'Paradisaea apoda', emoji: '🐦', order: 'Passeriformes', family: 'Paradisaeidae', habitat: 'bosque', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Oceanía', fact: 'Los machos tienen plumas larguísimas y amarillas que usan en bailes nupciales.' },
-  { name: 'gallo domestico', sci: 'Gallus gallus domesticus', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Es el ave más numerosa del planeta, con más de 30.000 millones de ejemplares. Desciende del gallo bankiva.' },
-  { name: 'colibrí garganta rubí', sci: 'Archilochus colubris', emoji: '🐦', order: 'Caprimulgiformes', family: 'Trochilidae', habitat: 'bosque', diet: 'nectarívoro', size: 'pequeño', migratory: 'sí', continent: 'América', fact: 'Es la única ave capaz de volar hacia atrás y mantenerse suspendida en el aire.' },
-  { name: 'petirrojo europeo', sci: 'Erithacus rubecula', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Europa', fact: 'Es muy territorial y suele seguir a los jardineros para atrapar lombrices.' },
-  { name: 'herrerillo común', sci: 'Cyanistes caeruleus', emoji: '🐦', order: 'Passeriformes', family: 'Paridae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Europa', fact: 'Su plumaje azul brilla bajo la luz ultravioleta, algo que solo ellos ven.' },
-  { name: 'carbonero común', sci: 'Parus major', emoji: '🐦', order: 'Passeriformes', family: 'Paridae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Tiene un canto muy variado y es capaz de aprender a usar herramientas.' },
-  { name: 'ruiseñor común', sci: 'Luscinia megarhynchos', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Es famoso por cantar de noche con una potencia y complejidad asombrosas.' },
-  { name: 'mirlo común', sci: 'Turdus merula', emoji: '🐦', order: 'Passeriformes', family: 'Turdidae', habitat: 'urbano', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Los machos son negros con pico naranja, mientras las hembras son marrones.' },
-  { name: 'golondrina común', sci: 'Hirundo rustica', emoji: '🐦', order: 'Passeriformes', family: 'Hirundinidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Construye sus nidos con barro y paja en estructuras humanas como porches.' },
-  { name: 'avión común', sci: 'Delichon urbicum', emoji: '🐦', order: 'Passeriformes', family: 'Hirundinidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Pasa la mayor parte de su vida volando, incluso bebe agua sobre el vuelo.' },
-  { name: 'lavandera blanca', sci: 'Motacilla alba', emoji: '🐦', order: 'Passeriformes', family: 'Motacillidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Mueve su larga cola de arriba a abajo constantemente mientras camina.' },
-  { name: 'jilguero europeo', sci: 'Carduelis carduelis', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Su cara roja y alas amarillas lo hacen uno de los pájaros más coloridos.' },
-  { name: 'verderón común', sci: 'Chloris chloris', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'bosque', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'Europa', fact: 'Tiene un vuelo nupcial similar al de las mariposas para atraer hembras.' },
-  { name: 'pinzón vulgar', sci: 'Fringilla coelebs', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Su nombre científico significa \"pinzón soltero\" porque los sexos migran separados.' },
-  { name: 'camachuelo común', sci: 'Pyrrhula pyrrhula', emoji: '🐦', order: 'Passeriformes', family: 'Fringillidae', habitat: 'bosque', diet: 'herbívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Es muy tímido y suele delatarse solo por su reclamo, un silbido melancólico.' },
-  { name: 'arrendajo euroasiático', sci: 'Garrulus glandarius', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'bosque', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Es el \"centinela del bosque\"; avisa con gritos al resto de animales si hay peligro.' },
-  { name: 'urraca común', sci: 'Pica pica', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'urbano', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Es una de las pocas especies animales capaz de reconocerse a sí misma en un espejo.' },
-  { name: 'cuervo común', sci: 'Corvus corax', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'montaña', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Global', fact: 'Es el paseriforme más grande y puede imitar sonidos humanos mejor que muchos loros.' },
-  { name: 'graja', sci: 'Corvus frugilegus', emoji: '🐦', order: 'Passeriformes', family: 'Corvidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Son aves muy sociales que anidan en colonias ruidosas llamadas grajeras.' },
-  { name: 'estornino pinto', sci: 'Sturnus vulgaris', emoji: '🐦', order: 'Passeriformes', family: 'Sturnidae', habitat: 'urbano', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Crea nubes de miles de ejemplares que dibujan formas increíbles en el cielo.' },
-  { name: 'gorrión común', sci: 'Passer domesticus', emoji: '🐦', order: 'Passeriformes', family: 'Passeridae', habitat: 'urbano', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Es el ave más vinculada al ser humano, presente en casi todas las ciudades del mundo.' },
-  { name: 'trepador azul', sci: 'Sitta europaea', emoji: '🐦', order: 'Passeriformes', family: 'Sittidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Es la única ave europea capaz de bajar por los troncos de los árboles cabeza abajo.' },
-  { name: 'lavandera cascadeña', sci: 'Motacilla cinerea', emoji: '🐦', order: 'Passeriformes', family: 'Motacillidae', habitat: 'ribera', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Siempre vive ligada a cursos de agua limpia y rápida, como ríos de montaña.' },
-  { name: 'faisán común', sci: 'Phasianus colchicus', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Asia', fact: 'Fue introducido en todo el mundo como ave de caza por su vistoso plumaje.' },
-  { name: 'pavo real común', sci: 'Pavo cristatus', emoji: '🦚', order: 'Galliformes', family: 'Phasianidae', habitat: 'bosque', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Asia', fact: 'Su cola no es su cola real, sino plumas alargadas de la parte baja de la espalda.' },
-  { name: 'cuchara común', sci: 'Spatula clypeata', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Su pico en forma de espátula tiene unas láminas internas que usa para filtrar pequeños organismos del agua.' },
-  { name: 'perdiz roja', sci: 'Alectoris rufa', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'Europa', fact: 'Prefiere correr por el suelo antes que volar cuando detecta un peligro.' },
-  { name: 'codorniz común', sci: 'Coturnix coturnix', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'campo abierto', diet: 'granívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'A diferencia de otras gallináceas, es una gran migradora que cruza el Sáhara.' },
-  { name: 'urogallo común', sci: 'Tetrao urogallus', emoji: '🐓', order: 'Galliformes', family: 'Phasianidae', habitat: 'bosque', diet: 'herbívoro', size: 'grande', migratory: 'no', continent: 'Eurasia', fact: 'Los machos realizan exhibiciones sonoras increíbles en lugares llamados \"cantaderos\".' },
-  { name: 'pavo salvaje', sci: 'Meleagris gallopavo', emoji: '🦃', order: 'Galliformes', family: 'Phasianidae', habitat: 'bosque', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'América', fact: 'Es capaz de volar distancias cortas a pesar de su gran peso y tamaño.' },
-  { name: 'avestruz común', sci: 'Struthio camelus', emoji: '🐦', order: 'Struthioniformes', family: 'Struthionidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'África', fact: 'Es el ave más grande y rápida en tierra, alcanzando los 70 km/h.' },
-  { name: 'emú', sci: 'Dromaius novaehollandiae', emoji: '🐦', order: 'Casuariiformes', family: 'Dromaiidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'grande', migratory: 'no', continent: 'Oceanía', fact: 'Es la segunda ave más grande del mundo y tiene tres dedos en cada pata.' },
-  { name: 'casuario común', sci: 'Casuarius casuarius', emoji: '🐦', order: 'Casuariiformes', family: 'Casuariidae', habitat: 'bosque', diet: 'frugívoro', size: 'grande', migratory: 'no', continent: 'Oceanía', fact: 'Tiene una protuberancia en la cabeza llamada casco que usa para abrirse paso en la selva.' },
-  { name: 'paloma bravía', sci: 'Columba livia', emoji: '🕊️', order: 'Columbiformes', family: 'Columbidae', habitat: 'urbano', diet: 'granívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Es el ancestro de todas las palomas domésticas y mensajeras del mundo.' },
-  { name: 'tórtola turca', sci: 'Streptopelia decaocto', emoji: '🕊️', order: 'Columbiformes', family: 'Columbidae', habitat: 'urbano', diet: 'granívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Se ha expandido por todo el mundo de forma asombrosa en los últimos 100 años.' },
-  { name: 'ganga ortega', sci: 'Pterocles orientalis', emoji: '🐓', order: 'Pterocliformes', family: 'Pteroclidae', habitat: 'campo abierto', diet: 'granívoro', size: 'mediano', migratory: 'no', continent: 'Eurasia', fact: 'Transporta agua para sus polluelos empapando las plumas de su pecho en charcas.' },
-  { name: 'abubilla común', sci: 'Upupa epops', emoji: '🐦', order: 'Bucerotiformes', family: 'Upupidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Cuando se asusta, despliega su cresta de plumas en forma de abanico.' },
-  { name: 'cuco común', sci: 'Cuculus canorus', emoji: '🕊️', order: 'Cuculiformes', family: 'Cuculidae', habitat: 'bosque', diet: 'insectívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'No construye nido; pone sus huevos en nidos de otras aves para que los críen.' },
-  { name: 'vencejo común', sci: 'Apus apus', emoji: '🐦', order: 'Caprimulgiformes', family: 'Apodidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Puede pasar hasta 10 meses volando sin aterrizar ni una sola vez.' },
-  { name: 'chotacabras europeo', sci: 'Caprimulgus europaeus', emoji: '🐦', order: 'Caprimulgiformes', family: 'Caprimulgidae', habitat: 'bosque', diet: 'insectívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Su plumaje parece corteza de árbol, lo que le permite camuflarse perfectamente de día.' },
-  { name: 'abejaruco europeo', sci: 'Merops apiaster', emoji: '🐦', order: 'Coraciiformes', family: 'Meropidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Antes de comerse una abeja, la golpea contra una rama para quitarle el aguijón y el veneno.' },
-  { name: 'carraca europea', sci: 'Coracias garrulus', emoji: '🐦', order: 'Coraciiformes', family: 'Coraciidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Es famosa por sus acrobacias aéreas y su espectacular color azul turquesa.' },
-  { name: 'pico picapinos', sci: 'Dendrocopos major', emoji: '🐦', order: 'Piciformes', family: 'Picidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Tamborilea en los troncos para marcar su territorio y atraer a su pareja.' },
-  { name: 'ánade friso', sci: 'Mareca strepera', emoji: '🦆', order: 'Anseriformes', family: 'Anatidae', habitat: 'humedales', diet: 'herbívoro', size: 'mediano', migratory: 'sí', continent: 'Global', fact: 'Es un pato elegante donde el macho destaca por su intrincado patrón de plumas grises.' },
-  { name: 'zampullín común', sci: 'Tachybaptus ruficollis', emoji: '🦆', order: 'Podicipediformes', family: 'Podicipedidae', habitat: 'humedales', diet: 'piscívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Es un experto buceador que desaparece bajo el agua ante la menor señal de peligro.' },
-  { name: 'loro gris africano', sci: 'Psittacus erithacus', emoji: '🦜', order: 'Psittaciformes', family: 'Psittacidae', habitat: 'bosque', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'África', fact: 'Es considerado uno de los animales más inteligentes del mundo por su capacidad cognitiva.' },
-  { name: 'zorzal común', sci: 'Turdus philomelos', emoji: '🐦', order: 'Passeriformes', family: 'Turdidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Utiliza piedras como \"yunques\" para romper las conchas de los caracoles y comerlos.' },
-  { name: 'zarapito real', sci: 'Numenius arquata', emoji: '🐦', order: 'Charadriiformes', family: 'Scolopacidae', habitat: 'costas', diet: 'invertebrados', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'Posee un pico larguísimo y curvado hacia abajo que parece una cimitarra.' },
-  { name: 'mito común', sci: 'Aegithalos caudatus', emoji: '🐦', order: 'Passeriformes', family: 'Aegithalidae', habitat: 'bosque', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Parece una pequeña bola de algodón con una cola desproporcionadamente larga.' },
-  { name: 'focha común', sci: 'Fulica atra', emoji: '🦆', order: 'Gruiformes', family: 'Rallidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Sus patas no tienen membranas, sino unos lóbulos anchos para nadar y caminar sobre el lodo.' },
-  { name: 'gallineta común', sci: 'Gallinula chloropus', emoji: '🦆', order: 'Gruiformes', family: 'Rallidae', habitat: 'humedales', diet: 'omnívoro', size: 'mediano', migratory: 'no', continent: 'Global', fact: 'Se reconoce fácilmente por su pico rojo con la punta amarilla y su escudo frontal rojo.' },
-  { name: 'grulla común', sci: 'Grus grus', emoji: '🐦', order: 'Gruiformes', family: 'Gruidae', habitat: 'humedales', diet: 'omnívoro', size: 'grande', migratory: 'sí', continent: 'Global', fact: 'Sus potentes trompeteos se oyen a kilómetros y sus bandadas en \"V\" anuncian el invierno.' },
-  { name: 'sisón común', sci: 'Tetrax tetrax', emoji: '🐦', order: 'Otidiformes', family: 'Otididae', habitat: 'campo abierto', diet: 'herbívoro', size: 'mediano', migratory: 'sí', continent: 'Eurasia', fact: 'El macho emite un siseo con las alas al volar para atraer a las hembras durante el celo.' },
-  { name: 'alcaudón común', sci: 'Lanius senator', emoji: '🐦', order: 'Passeriformes', family: 'Laniidae', habitat: 'campo abierto', diet: 'carnívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'Tiene la costumbre de empalar a sus presas (insectos o lagartijas) en espinas o alambres.' },
-  { name: 'oropéndola europea', sci: 'Oriolus oriolus', emoji: '🐦', order: 'Passeriformes', family: 'Oriolidae', habitat: 'bosque', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Global', fact: 'A pesar de su color amarillo brillante, es muy difícil de ver porque vive en las copas altas.' },
-  { name: 'bisbita común', sci: 'Anthus pratensis', emoji: '🐦', order: 'Passeriformes', family: 'Motacillidae', habitat: 'campo abierto', diet: 'insectívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Es un ave muy discreta que suele caminar y anidar directamente en el suelo de las praderas.' },
-  { name: 'cogujada común', sci: 'Galerida cristata', emoji: '🐦', order: 'Passeriformes', family: 'Alaudidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Global', fact: 'Se distingue por su cresta larga y puntiaguda que mantiene siempre erguida.' },
-  { name: 'alondra común', sci: 'Alauda arvensis', emoji: '🐦', order: 'Passeriformes', family: 'Alaudidae', habitat: 'campo abierto', diet: 'omnívoro', size: 'pequeño', migratory: 'sí', continent: 'Eurasia', fact: 'Es famosa por su canto melodioso y prolongado que emite mientras vuela a gran altura.' },
-  { name: 'tarabilla común', sci: 'Saxicola rubicola', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'matorral', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Suele posarse en lo alto de arbustos o postes para vigilar su territorio.' },
-  { name: 'colirrojo tizón', sci: 'Phoenicurus ochruros', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'urbano', diet: 'insectívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'Se ha adaptado perfectamente a las ciudades, donde anida en huecos de edificios y muros.' },
-  { name: 'roquero solitario', sci: 'Monticola solitarius', emoji: '🐦', order: 'Passeriformes', family: 'Muscicapidae', habitat: 'roquedos', diet: 'omnívoro', size: 'pequeño', migratory: 'no', continent: 'Eurasia', fact: 'El macho es de un color azul oscuro inconfundible y suele vivir en zonas de roca y acantilados.' },
-  { name: 'búho nival', sci: 'Bubo scandiacus', emoji: '🦉', order: 'Strigiformes', family: 'Strigidae', habitat: 'tundra', diet: 'carnívoro', size: 'grande', migratory: 'sí', continent: 'Holártico', fact: 'A diferencia de otros búhos, es principalmente diurno debido a las largas horas de luz del Ártico.' },
-  { name: 'pito real', sci: 'Picus sharpei', emoji: '🐦', order: 'Piciformes', family: 'Picidae', habitat: 'bosque', diet: 'insectívoro', size: 'mediano', migratory: 'no', continent: 'Europa', fact: 'Tiene una lengua larguísima y pegajosa para extraer hormigas de sus nidos.' },
-];
-
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
-function toTitle(str) {
-  return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-}
-function stripAccents(str) {
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-}
-
-let BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) })).sort((a,b) => a.name.localeCompare(b.name));
+let BIRDS = [];
 
 // ─── PHYLOGENY ────────────────────────────────────────────────────────────────
 function getPhyloInfo(birdName) {
@@ -1464,8 +1352,6 @@ function switchMode(mode) {
   document.getElementById('tabDaily').classList.toggle('active', mode === 'daily');
   document.getElementById('tabPractice').classList.toggle('active', mode === 'practice');
   document.getElementById('dayPill').style.display = mode === 'daily' ? '' : 'none';
-  updatePracticeStreakDisplay();
-  updateDailyStreakDisplay();
   initGame();
 }
 
@@ -1521,7 +1407,6 @@ function initGame() {
   } else {
     document.getElementById('dailyStreakPill').style.display = 'none';
     target = BIRDS[Math.floor(Math.random() * BIRDS.length)];
-    updatePracticeStreakDisplay();
   }
 }
 
@@ -1871,96 +1756,15 @@ function endGame(win) {
     if (isNew) showUnlockToast({ ...target });
   }
   recordResult(win, guesses.length);
-
-  if (currentMode === 'practice') {
-    const streak = updatePracticeStreak(win);
-    updatePracticeStreakDisplay();
-  }
-
   if (win) { soundWin(); launchConfetti(); } else { soundLose(); }
   updateDailyStreakDisplay();
 
   showBanner(win, guesses.length);
 
-  const practiceStreakInfo = (currentMode === 'practice' && win && loadPracticeStreak() > 1)
-    ? `<div style="font-family:'Syne Mono',monospace;font-size:0.72rem;color:var(--accent);margin-top:0.5rem;">🎯 Racha: ${loadPracticeStreak()} consecutivas</div>` : '';
-
-  const shareBtn = currentMode === 'daily'
-    ? `<button id="shareBtn" class="play-again" style="margin-top:0.5rem;width:100%;background:transparent;border:1.5px solid var(--border2);color:var(--text2);" onclick="shareResult(${win}, ${guesses.length})">📤 Compartir</button>`
-    : '';
-
   const playAgainBtn = currentMode === 'practice'
     ? `<button class="play-again" style="margin-top:1rem;width:100%;" onclick="initGame()">Nueva ave →</button>`
-    : ``;
-
-  document.getElementById('bannerFact').insertAdjacentHTML('afterend', practiceStreakInfo + shareBtn + playAgainBtn);
-}
-
-// ─── PRACTICE STREAK ──────────────────────────────────────────────────────────
-function loadPracticeStreak() {
-  try { return JSON.parse(localStorage.getItem('aviguess_practice_streak')) || 0; }
-  catch(e) { return 0; }
-}
-function savePracticeStreak(n) {
-  try { localStorage.setItem('aviguess_practice_streak', JSON.stringify(n)); } catch(e) {}
-}
-function updatePracticeStreak(win) {
-  let streak = loadPracticeStreak();
-  streak = win ? streak + 1 : 0;
-  savePracticeStreak(streak);
-  return streak;
-}
-function updatePracticeStreakDisplay() {
-  const pill = document.getElementById('practiceStreakPill');
-  if (currentMode !== 'practice') { pill.style.display = 'none'; return; }
-  const streak = loadPracticeStreak();
-  document.getElementById('practiceStreakNum').textContent = streak;
-  pill.style.display = streak > 0 ? '' : 'none';
-}
-
-// ─── SHARE RESULT ─────────────────────────────────────────────────────────────
-function buildShareText(win, attempts) {
-  const day = getDayNumber();
-  const result = win ? `${attempts}/${MAX_ATTEMPTS}` : `X/${MAX_ATTEMPTS}`;
-
-  // One row per guess, one emoji per attribute
-  const rows = guesses.map(g => {
-    return ATTRS.map(a => {
-      const cmp = compareAttr(g[a.key], target[a.key], a.key);
-      if (cmp === 'match') return '🟩';
-      if (cmp === 'partial') return '🟨';
-      return '🟥';
-    }).join('');
-  }).join('\n');
-
-  return `🐦 AviGuess #${day} ${result}\n${rows}\n\naxellaor.github.io/aviguess`;
-}
-
-function shareResult(win, attempts) {
-  const text = buildShareText(win, attempts);
-  if (navigator.share) {
-    navigator.share({ text }).catch(() => copyToClipboard(text));
-  } else {
-    copyToClipboard(text);
-  }
-}
-
-function copyToClipboard(text) {
-  const btn = document.getElementById('shareBtn');
-  const original = '📤 Compartir';
-  const setLabel = t => { if (btn) btn.textContent = t; };
-  navigator.clipboard.writeText(text).then(() => {
-    setLabel('✓ Copiado');
-    setTimeout(() => setLabel(original), 2000);
-  }).catch(() => {
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      setLabel('✓ Copiado');
-      setTimeout(() => setLabel(original), 2000);
-    } catch(e) { setLabel('Error al copiar'); }
-  });
+    : `<button class="play-again" style="margin-top:1rem;width:100%;" onclick="switchMode('practice')">Jugar en Práctica →</button>`;
+  document.getElementById('bannerFact').insertAdjacentHTML('afterend', playAgainBtn);
 }
 
 // ─── GOOGLE SHEETS LOADER ────────────────────────────────────────────────────
@@ -2045,7 +1849,8 @@ async function loadBirdsFromSheets() {
       console.warn('Proxy fallido:', url, e.message);
     }
   }
-  console.warn('No se pudo cargar Google Sheets, usando datos locales.');
+  console.error('No se pudo cargar Google Sheets.');
+  document.getElementById('loadingOverlay').innerHTML = '<div style="text-align:center;padding:2rem"><div style="font-size:2rem">⚠️</div><div style="font-family:Syne,sans-serif;font-weight:700;color:#e07070;margin-top:1rem;font-size:1.1rem">No se pudieron cargar las aves</div><div style="font-size:0.8rem;color:#9a8f7e;margin-top:0.5rem">Comprueba tu conexión e intenta de nuevo</div><button onclick="location.reload()" style="margin-top:1.2rem;padding:0.6rem 1.8rem;background:#2d7a3a;border:none;border-radius:6px;color:#fff;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;font-size:0.9rem">Reintentar</button></div>';
 }
 
 // ─── SOUND SYSTEM ─────────────────────────────────────────────────────────────
