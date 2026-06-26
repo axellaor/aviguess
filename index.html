@@ -1882,20 +1882,29 @@ function endGame(win) {
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlkAEQH7lGKXFBXb_l7vhKaHdIGEe39nhu-5dRzjt_PqAE4AK3Pjvp0t_nLCJsZPcu/exec';
 
 function jsonRowToBird(row) {
-  const name = (row['Nombre Común'] || row['Nombre Comun'] || '').toLowerCase();
-  const mig = (row['Migratorio'] || '').toLowerCase();
+  // Normalize keys - handle any casing or accent variation
+  const get = (keys) => {
+    for (const k of keys) {
+      const val = row[k];
+      if (val !== undefined && val !== null && val !== '') return String(val);
+    }
+    return '';
+  };
+  const name = get(['Nombre Común', 'Nombre Comun', 'nombre común', 'nombre comun']).toLowerCase();
+  if (!name) return null;
+  const mig = get(['Migratorio']).toLowerCase();
   return {
     name,
-    sci:       row['Nombre Cientifico'] || row['Nombre Científico'] || '',
-    emoji:     row['Emoji'] || '🐦',
-    order:     row['Orden'] || '',
-    family:    row['Familia'] || '',
-    habitat:   (row['Hábitat'] || row['Habitat'] || '').toLowerCase(),
-    diet:      (row['Dieta'] || '').toLowerCase(),
-    size:      (row['Tamaño'] || row['Tamano'] || '').toLowerCase(),
-    migratory: (mig === 'sí' || mig === 'si') ? 'sí' : 'no',
-    continent: row['Continente'] || '',
-    fact:      row['Curiosidad'] || '',
+    sci:       get(['Nombre Científico', 'Nombre Cientifico', 'nombre científico']),
+    emoji:     get(['Emoji', 'emoji']) || '🐦',
+    order:     get(['Orden', 'orden']),
+    family:    get(['Familia', 'familia']),
+    habitat:   get(['Hábitat', 'Habitat', 'hábitat', 'habitat']).toLowerCase(),
+    diet:      get(['Dieta', 'dieta']).toLowerCase(),
+    size:      get(['Tamaño', 'Tamano', 'tamaño', 'tamano']).toLowerCase(),
+    migratory: (mig === 'sí' || mig === 'si' || mig === 'parcial') ? 'sí' : 'no',
+    continent: get(['Continente', 'continente']),
+    fact:      get(['Curiosidad', 'curiosidad']),
   };
 }
 
@@ -1905,7 +1914,7 @@ async function loadBirdsFromSheets() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
     if (!Array.isArray(rows) || rows.length < 5) throw new Error('Datos insuficientes');
-    const newBirds = rows.map(jsonRowToBird).map(b => ({ ...b, name: toTitle(b.name) })).filter(b => b.name.length > 1);
+    const newBirds = rows.map(jsonRowToBird).filter(b => b && b.name && b.name.length > 1).map(b => ({ ...b, name: toTitle(b.name) }));
     if (newBirds.length < 5) throw new Error('Pocas aves parseadas');
     BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
     buildPhyloFromBirds(newBirds);
