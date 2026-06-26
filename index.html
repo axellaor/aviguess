@@ -1902,7 +1902,7 @@ function jsonRowToBird(row) {
     habitat:   get(['Hábitat', 'Habitat', 'hábitat', 'habitat']).toLowerCase(),
     diet:      get(['Dieta', 'dieta']).toLowerCase(),
     size:      get(['Tamaño', 'Tamano', 'tamaño', 'tamano']).toLowerCase(),
-    migratory: (mig === 'sí' || mig === 'si' || mig === 'parcial') ? 'sí' : 'no',
+    migratory: mig === 'sí' || mig === 'si' ? 'sí' : mig === 'parcial' ? 'parcial' : 'no',
     continent: get(['Continente', 'continente']),
     fact:      get(['Curiosidad', 'curiosidad']),
   };
