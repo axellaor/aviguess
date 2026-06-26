@@ -1908,6 +1908,18 @@ function jsonRowToBird(row) {
   };
 }
 
+function buildPhyloFromBirds(birds) {
+  for (const bird of birds) {
+    const orderKey = bird.order.toLowerCase().replace(/ /g,'_');
+    const familyKey = bird.family.toLowerCase().replace(/ /g,'_');
+    if (!orderKey || !familyKey) continue;
+    if (!PHYLO[orderKey]) PHYLO[orderKey] = {};
+    if (!PHYLO[orderKey][familyKey]) PHYLO[orderKey][familyKey] = [];
+    if (!PHYLO[orderKey][familyKey].includes(bird.name.toLowerCase()))
+      PHYLO[orderKey][familyKey].push(bird.name.toLowerCase());
+  }
+}
+
 async function loadBirdsFromSheets() {
   try {
     const res = await fetch(APPS_SCRIPT_URL, { signal: AbortSignal.timeout(10000) });
