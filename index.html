@@ -1240,7 +1240,7 @@ function stripAccents(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
-let BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) })).sort((a,b) => a.name.localeCompare(b.name));
+let BIRDS = []; // loaded from Google Sheets, fallback to BIRDS_RAW below
 
 // ─── PHYLOGENY ────────────────────────────────────────────────────────────────
 function getPhyloInfo(birdName) {
@@ -1925,21 +1925,15 @@ async function loadBirdsFromSheets() {
     const res = await fetch(APPS_SCRIPT_URL, { signal: AbortSignal.timeout(10000) });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
-    if (!Array.isArray(rows) || rows.length < 5) throw new Error('Datos insuficientes: ' + rows.length);
+    if (!Array.isArray(rows) || rows.length < 5) throw new Error('Datos insuficientes');
     const newBirds = rows.map(jsonRowToBird).filter(b => b && b.name && b.name.length > 1).map(b => ({ ...b, name: toTitle(b.name) }));
-    if (newBirds.length < 5) throw new Error('Pocas aves parseadas: ' + newBirds.length + ' de ' + rows.length);
+    if (newBirds.length < 5) throw new Error('Pocas aves parseadas');
     BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
-    buildPhyloFromBirds(newBirds);
-    console.log(`✓ ${BIRDS.length} aves cargadas desde Google Apps Script`);
-    // Show brief success indicator
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.querySelector('div:last-child').textContent = `✓ ${BIRDS.length} aves cargadas`;
+    buildPhyloFromBirds(BIRDS);
+    console.log(`✓ ${BIRDS.length} aves cargadas desde Google Sheets`);
   } catch(e) {
-    console.warn('Apps Script fallido, usando datos locales:', e.message);
-    // Show error in loading screen briefly
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.querySelector('div:last-child').textContent = '⚠️ ' + e.message + ' — usando datos locales';
-    await new Promise(r => setTimeout(r, 2000));
+    console.warn('Google Sheets fallido, usando datos locales:', e.message);
+    BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) })).sort((a,b) => a.name.localeCompare(b.name));
   }
 }
 
