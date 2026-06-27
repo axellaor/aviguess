@@ -35,7 +35,7 @@ body {
   color: var(--text);
   font-family: 'Lora', Georgia, serif;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body::before {
@@ -2036,7 +2036,7 @@ loadBirdsFromSheets().then(() => {
 </script>
 
 <!-- Credit bottom left -->
-<div style="position:fixed;bottom:1.2rem;left:1.5rem;z-index:200;font-family:'Syne Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--text3);line-height:1.6;user-select:none;">
+<div style="position:fixed;bottom:1.2rem;left:1.5rem;z-index:200;font-family:'Syne Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--text3);line-height:1.6;user-select:none;pointer-events:none;">
   Sylv Wizard Games<br>© 2026
 </div>
 
