@@ -924,11 +924,6 @@ main {
 </div>
 <style>@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }</style>
 
-<!-- Brand credit bottom-left -->
-<div class="brand-footer">
-  <span>Sylv Wizard</span> Games<br>© 2026
-</div>
-
 <header>
   <div class="logo">Avi<span>Guess</span></div>
   <div class="header-meta">
@@ -1024,22 +1019,6 @@ main {
 
 </main>
 
-<!-- Corner buttons (bottom-right) -->
-<div style="position:fixed;bottom:1.5rem;right:1.5rem;display:flex;flex-direction:row;gap:0.6rem;z-index:200;">
-  <button onclick="window.open('https://ko-fi.com/sylvwizard','_blank')" title="Invítame a un café"
-    style="width:46px;height:46px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);
-           font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
-           box-shadow:0 2px 12px rgba(0,0,0,0.3);transition:transform 0.15s,border-color 0.15s;"
-    onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--accent)'"
-    onmouseout="this.style.transform='';this.style.borderColor='var(--border2)'">☕</button>
-  <button id="emailBtn" onclick="copyEmail()" title="Copiar correo"
-    style="width:46px;height:46px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);
-           font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
-           box-shadow:0 2px 12px rgba(0,0,0,0.3);transition:transform 0.15s,border-color 0.15s;"
-    onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--accent)'"
-    onmouseout="this.style.transform='';this.style.borderColor='var(--border2)'">📧</button>
-</div>
-  
 <script>
 const PHYLO = {
   accipitriformes: {
@@ -1261,7 +1240,7 @@ function stripAccents(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
-let BIRDS = []; // loaded from Google Sheets, fallback to BIRDS_RAW below
+let BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) })).sort((a,b) => a.name.localeCompare(b.name));
 
 // ─── PHYLOGENY ────────────────────────────────────────────────────────────────
 function getPhyloInfo(birdName) {
@@ -1900,62 +1879,88 @@ function endGame(win) {
 }
 
 // ─── GOOGLE SHEETS LOADER ────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzlkAEQH7lGKXFBXb_l7vhKaHdIGEe39nhu-5dRzjt_PqAE4AK3Pjvp0t_nLCJsZPcu/exec';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRalb53BF5DU55lQxjv8dCf6hbmW7Ayglyzpoy4V94c70H3IMp5J0Jessi9eT_a31AndPZDeZJ0KufT/pub?gid=0&single=true&output=csv';
 
-function jsonRowToBird(row) {
-  // Normalize keys - handle any casing or accent variation
-  const get = (keys) => {
-    for (const k of keys) {
-      const val = row[k];
-      if (val !== undefined && val !== null && val !== '') return String(val);
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map(line => {
+    // Handle commas inside quoted fields
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
     }
-    return '';
-  };
-  const name = get(['Nombre Común', 'Nombre Comun', 'nombre común', 'nombre comun']).toLowerCase();
-  if (!name) return null;
-  const mig = get(['Migratorio']).toLowerCase();
+    cols.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cols[i] || '').replace(/^"|"$/g, ''));
+    return obj;
+  }).filter(r => r['Nombre Común']);
+}
+
+function csvRowToBird(row) {
+  const name = (row['Nombre Común'] || '').toLowerCase();
+  const mig = (row['Migratorio'] || '').toLowerCase();
   return {
     name,
-    sci:       get(['Nombre Científico', 'Nombre Cientifico', 'nombre científico']),
-    emoji:     get(['Emoji', 'emoji']) || '🐦',
-    order:     get(['Orden', 'orden']),
-    family:    get(['Familia', 'familia']),
-    habitat:   get(['Hábitat', 'Habitat', 'hábitat', 'habitat']).toLowerCase(),
-    diet:      get(['Dieta', 'dieta']).toLowerCase(),
-    size:      get(['Tamaño', 'Tamano', 'tamaño', 'tamano']).toLowerCase(),
-    migratory: mig || 'no',
-    continent: get(['Continente', 'continente']),
-    fact:      get(['Curiosidad', 'curiosidad']),
+    sci:       row['Nombre Cientifico'] || '',
+    emoji:     row['Emoji'] || '🐦',
+    order:     row['Orden'] || '',
+    family:    row['Familia'] || '',
+    habitat:   (row['Hábitat'] || row['Habitat'] || '').toLowerCase(),
+    diet:      (row['Dieta'] || '').toLowerCase(),
+    size:      (row['Tamaño'] || row['Tamano'] || '').toLowerCase(),
+    migratory: (mig === 'sí' || mig === 'si') ? 'sí' : 'no',
+    continent: row['Continente'] || '',
+    fact:      row['Curiosidad'] || '',
   };
 }
 
 function buildPhyloFromBirds(birds) {
+  // Rebuild PHYLO dynamically from bird data
+  // We keep the existing PHYLO for proximity logic but update member lists
+  const newPhylo = {};
   for (const bird of birds) {
     const orderKey = bird.order.toLowerCase().replace(/ /g,'_');
     const familyKey = bird.family.toLowerCase().replace(/ /g,'_');
-    if (!orderKey || !familyKey) continue;
-    if (!PHYLO[orderKey]) PHYLO[orderKey] = {};
-    if (!PHYLO[orderKey][familyKey]) PHYLO[orderKey][familyKey] = [];
-    if (!PHYLO[orderKey][familyKey].includes(bird.name.toLowerCase()))
-      PHYLO[orderKey][familyKey].push(bird.name.toLowerCase());
+    if (!newPhylo[orderKey]) newPhylo[orderKey] = {};
+    if (!newPhylo[orderKey][familyKey]) newPhylo[orderKey][familyKey] = [];
+    newPhylo[orderKey][familyKey].push(bird.name.toLowerCase());
+  }
+  // Merge into PHYLO
+  for (const [order, families] of Object.entries(newPhylo)) {
+    if (!PHYLO[order]) PHYLO[order] = {};
+    for (const [fam, members] of Object.entries(families)) {
+      PHYLO[order][fam] = members;
+    }
   }
 }
 
 async function loadBirdsFromSheets() {
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, { signal: AbortSignal.timeout(10000) });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const rows = await res.json();
-    if (!Array.isArray(rows) || rows.length < 5) throw new Error('Datos insuficientes');
-    const newBirds = rows.map(jsonRowToBird).filter(b => b && b.name && b.name.length > 1).map(b => ({ ...b, name: toTitle(b.name) }));
-    if (newBirds.length < 5) throw new Error('Pocas aves parseadas');
-    BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
-    buildPhyloFromBirds(BIRDS);
-    console.log(`✓ ${BIRDS.length} aves cargadas desde Google Sheets`);
-  } catch(e) {
-    console.warn('Google Sheets fallido, usando datos locales:', e.message);
-    BIRDS = BIRDS_RAW.map(b => ({ ...b, name: toTitle(b.name) })).sort((a,b) => a.name.localeCompare(b.name));
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(CSV_URL)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(CSV_URL)}`,
+  ];
+  for (const url of proxies) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const text = await res.text();
+      const rows = parseCSV(text);
+      if (rows.length < 10) continue;
+      const newBirds = rows.map(csvRowToBird).map(b => ({ ...b, name: toTitle(b.name) }));
+      BIRDS = newBirds.sort((a,b) => a.name.localeCompare(b.name));
+      buildPhyloFromBirds(newBirds);
+      console.log(`✓ ${BIRDS.length} aves cargadas desde Google Sheets`);
+      return;
+    } catch(e) {
+      console.warn('Proxy fallido:', url, e.message);
+    }
   }
+  console.warn('No se pudo cargar Google Sheets, usando datos locales.');
 }
 
 // ─── SOUND SYSTEM ─────────────────────────────────────────────────────────────
@@ -2029,9 +2034,15 @@ loadBirdsFromSheets().then(() => {
   initGame();
 });
 </script>
+
+<!-- Credit bottom left -->
+<div style="position:fixed;bottom:1.2rem;left:1.5rem;z-index:200;font-family:'Syne Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--text3);line-height:1.6;user-select:none;">
+  Sylv Wizard Games<br>© 2026
+</div>
+
 <!-- Corner buttons -->
 <div style="position:fixed;bottom:1.5rem;right:1.5rem;display:flex;flex-direction:row;gap:0.6rem;z-index:200;">
-  <button onclick="window.open('https://ko-fi.com','_blank')" title="Invítame a un café"
+  <button onclick="window.open('https://ko-fi.com/sylvwizard','_blank')" title="Invítame a un café"
     style="width:46px;height:46px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);
            font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
            box-shadow:0 2px 12px rgba(0,0,0,0.3);transition:transform 0.15s,border-color 0.15s;"
